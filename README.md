@@ -14,6 +14,8 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://skills.sh/"><img src="https://img.shields.io/badge/skills.sh-listed-brightgreen" alt="skills.sh" /></a>
+  <a href="https://www.npmjs.com/package/@pushary/agent-hooks"><img src="https://img.shields.io/npm/v/@pushary/agent-hooks" alt="npm" /></a>
+  <a href="https://pypi.org/project/hermes-plugin-pushary/"><img src="https://img.shields.io/pypi/v/hermes-plugin-pushary" alt="PyPI" /></a>
 </p>
 
 ---
@@ -34,33 +36,181 @@ Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your 
 
 **Agent identification** — when you run multiple agents, each notification shows which agent is asking so you always know what you're responding to.
 
-## Quick Start
+**Permission hooks** — route Claude Code's tool approval prompts through push notifications so you can approve or deny from your phone.
 
-### 1. Install the skill
+---
+
+## Setup: Claude Code
+
+### Option A: MCP Server (notifications + questions)
+
+The agent calls Pushary tools when it wants to notify you or ask a question.
+
+**1. Sign up** at [pushary.com/sign-up](https://pushary.com/sign-up?from=ai-coding) and get your API key.
+
+**2. Install the skill:**
 
 ```bash
-npx skills add pushary/pushary-skill
+npx skills add Pushary/pushary-skill
 ```
 
-### 2. Add the MCP server
-
-Add this to your agent's MCP configuration:
+**3. Add the MCP server** to your Claude Code settings (`~/.claude/settings.json` or project `.claude/settings.json`):
 
 ```json
 {
   "mcpServers": {
     "pushary": {
-      "url": "https://pushary.com/api/mcp/mcp"
+      "url": "https://pushary.com/api/mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer pk_xxx.sk_xxx"
+      }
     }
   }
 }
 ```
 
-### 3. Sign up for Pushary
+Replace `pk_xxx.sk_xxx` with your API key.
 
-Create your account at [pushary.com/sign-up](https://pushary.com/sign-up?from=ai-coding) to get your API key.
+**4. Enable notifications** on your phone by visiting your Pushary dashboard and allowing browser notifications.
 
-That's it. Your agent will start sending you notifications automatically.
+That's it. The agent will proactively send you notifications when tasks complete, errors occur, or decisions are needed.
+
+### Option B: Permission Hooks (approve/deny tools via push)
+
+Route Claude Code's built-in permission prompts through push notifications. When the agent wants to run a command or edit a file, you get a push notification to approve or deny from your phone.
+
+**1. Install the hook package:**
+
+```bash
+npm install -g @pushary/agent-hooks
+```
+
+**2. Set your API key** in your shell profile (`~/.zshrc` or `~/.bashrc`):
+
+```bash
+export PUSHARY_API_KEY="pk_xxx.sk_xxx"
+```
+
+**3. Add the hook** to your Claude Code settings (`~/.claude/settings.json`):
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pushary-hook",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**4. Configure timeout policies** in your [Pushary dashboard](https://pushary.com/dashboard/agent/policies):
+
+| Tool | Timeout | If no response |
+|------|---------|----------------|
+| Bash | 60s | Auto-deny |
+| Write | 60s | Ask in terminal |
+| Edit | 45s | Ask in terminal |
+| Read | 0s | Auto-approve |
+
+When you don't respond to a push notification in time, the configured fallback kicks in: auto-approve, auto-deny, or fall back to the normal terminal permission prompt.
+
+### Option C: Both (recommended)
+
+Use Option A and Option B together. The MCP server handles notifications and voluntary questions. The permission hook handles tool approvals. They use the same API key and dashboard.
+
+---
+
+## Setup: Hermes Agent
+
+### Option A: Native Plugin (recommended)
+
+Full integration with native Hermes tools and automatic error notifications.
+
+**1. Install the plugin:**
+
+```bash
+pip install hermes-plugin-pushary
+```
+
+**2. Enable it:**
+
+```bash
+hermes plugins enable pushary
+```
+
+**3. Set your API key:**
+
+```bash
+export PUSHARY_API_KEY="pk_xxx.sk_xxx"
+```
+
+**4. (Optional) Set your agent name:**
+
+```bash
+export PUSHARY_AGENT_NAME="Hermes - my-project"
+```
+
+The plugin registers 4 native tools (`pushary_notify`, `pushary_ask`, `pushary_wait`, `pushary_cancel`) and automatically sends push notifications when tools return errors.
+
+Set `PUSHARY_AUTO_NOTIFY_SESSION_END=1` to also get notified when a Hermes session ends.
+
+### Option B: MCP Server + Skill
+
+If you prefer MCP over the native plugin:
+
+**1. Add to `~/.hermes/config.yaml`:**
+
+```yaml
+mcp:
+  servers:
+    pushary:
+      url: https://pushary.com/api/mcp/sse
+      headers:
+        Authorization: "Bearer ${PUSHARY_API_KEY}"
+```
+
+**2. Install the skill:**
+
+```bash
+hermes skills tap add Pushary/pushary-skill
+hermes skills install pushary
+```
+
+---
+
+## Setup: Cursor / Windsurf / Other MCP Agents
+
+**1. Add the MCP server** to your agent's MCP config (usually `.cursor/mcp.json` or similar):
+
+```json
+{
+  "mcpServers": {
+    "pushary": {
+      "url": "https://pushary.com/api/mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer pk_xxx.sk_xxx"
+      }
+    }
+  }
+}
+```
+
+**2. Install the skill** (if your agent supports skills.sh):
+
+```bash
+npx skills add Pushary/pushary-skill
+```
+
+---
 
 ## Tools
 
@@ -96,15 +246,22 @@ Supports three question types:
 
 The flow uses `ask_user` -> `wait_for_answer` with automatic retries. Answers persist for 10 minutes, so there's no rush.
 
+## Packages
+
+| Package | Registry | Description |
+|---------|----------|-------------|
+| [`@pushary/agent-hooks`](https://www.npmjs.com/package/@pushary/agent-hooks) | npm | Claude Code permission hooks |
+| [`hermes-plugin-pushary`](https://pypi.org/project/hermes-plugin-pushary/) | PyPI | Hermes Agent native plugin |
+
 ## Compatible Agents
 
 Works with any agent that supports [skills.sh](https://skills.sh/) or the Model Context Protocol:
 
-- [Cursor](https://cursor.com/)
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-- [Windsurf](https://windsurf.com/)
-- [Hermes Agent](https://hermes-agent.nousresearch.com/)
-- [OpenAI Codex](https://openai.com/index/openai-codex/)
+- [Claude Code](https://code.claude.com/) (MCP + permission hooks)
+- [Hermes Agent](https://hermes-agent.nousresearch.com/) (native plugin or MCP)
+- [Cursor](https://cursor.com/) (MCP)
+- [Windsurf](https://windsurf.com/) (MCP)
+- [OpenAI Codex](https://openai.com/index/openai-codex/) (MCP)
 - And [39+ more agents](https://skills.sh/)
 
 ## Contributing
