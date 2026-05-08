@@ -1,7 +1,16 @@
 ---
 name: pushary
+version: 0.1.0
 description: Push notifications and human-in-the-loop for Hermes Agent. Send alerts when tasks finish, ask questions (yes/no, multiple choice, or free text) via web push, and get answers from the user's lock screen. Use these tools proactively when the user is not actively in a chat session. Works alongside Hermes's built-in messaging platforms (Telegram, Discord, etc.) as a universal fallback channel.
 metadata:
+  hermes:
+    tags: [notifications, push, human-in-the-loop, alerts, permissions]
+    category: productivity
+    requires_toolsets: []
+    config:
+      - key: PUSHARY_API_KEY
+        description: "Your Pushary API key for push notifications"
+        default: ""
   tags: notifications, push, mcp, human-in-the-loop, hermes, alerts, permissions
 ---
 

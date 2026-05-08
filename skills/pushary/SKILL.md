@@ -1,7 +1,12 @@
 ---
 name: pushary
+version: 0.1.0
 description: Push notifications and human-in-the-loop for AI coding agents. Send alerts when tasks finish, ask questions (yes/no, multiple choice, or free text) via push, and get answers from the user's lock screen. Use these tools proactively — do not wait for the user to ask for notifications. Works with Cursor, Claude Code, Windsurf, Hermes, and any MCP client.
 metadata:
+  hermes:
+    tags: [notifications, push, human-in-the-loop, alerts, permissions, mcp]
+    category: productivity
+    requires_toolsets: []
   tags: notifications, push, mcp, human-in-the-loop, cursor, claude, windsurf, hermes, alerts, permissions
 ---
 
