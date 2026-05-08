@@ -1,0 +1,165 @@
+---
+name: pushary
+description: Push notifications and human-in-the-loop for Hermes Agent. Send alerts when tasks finish, ask questions (yes/no, multiple choice, or free text) via web push, and get answers from the user's lock screen. Use these tools proactively when the user is not actively in a chat session. Works alongside Hermes's built-in messaging platforms (Telegram, Discord, etc.) as a universal fallback channel.
+metadata:
+  tags: notifications, push, mcp, human-in-the-loop, hermes, alerts, permissions
+---
+
+# Pushary — Push Notifications for Hermes Agent
+
+Pushary adds web push notifications as a delivery channel for Hermes. Use it when the user is not actively monitoring a chat platform, or when you need to reach them on their phone's lock screen for a time-sensitive decision.
+
+## When to Use Pushary vs Hermes Platforms
+
+**Use Pushary when:**
+- The user has no active chat session (Telegram, Discord, etc.)
+- You need to reach the user's phone lock screen for a quick decision
+- A background task finishes and the user may have walked away
+- Permission escalation — a dangerous command needs approval
+- The user explicitly asked for push notifications
+
+**Use the active Hermes platform when:**
+- The user is currently in a Telegram/Discord/Slack conversation with you
+- The question is part of an ongoing dialog
+- The user prefers responses in their current platform
+
+**Use both when:**
+- A critical error occurs — notify via push AND the active platform
+- A long-running task completes — push ensures they see it even if they closed the chat
+
+## Setup
+
+Add Pushary as an MCP server in your Hermes `config.yaml`:
+
+```yaml
+mcp:
+  servers:
+    pushary:
+      url: https://pushary.com/api/mcp/sse
+      headers:
+        Authorization: "Bearer ${PUSHARY_API_KEY}"
+```
+
+Set your API key as an environment variable:
+
+```bash
+export PUSHARY_API_KEY="pk_xxx.sk_xxx"
+```
+
+Sign up at https://pushary.com/sign-up?from=hermes to get your API key.
+
+## Tools
+
+### send_notification
+
+Send a one-way push notification. Optionally include structured context for a rich detail page.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| title | string | Yes | Notification title (max 100 chars, aim for under 60) |
+| body | string | Yes | Notification body (max 500 chars, aim for under 200) |
+| agentName | string | No | Identifies this Hermes instance (e.g., "Hermes - daily-briefing") |
+| context | object | No | Rich context with type, summary, details, filesChanged, errorMessage, nextSteps |
+
+**Example — cron task completed:**
+
+```json
+{
+  "title": "Daily briefing ready",
+  "body": "Compiled 12 news items and 3 calendar events",
+  "agentName": "Hermes - daily-briefing",
+  "context": {
+    "type": "task_complete",
+    "summary": "Morning briefing compiled from RSS feeds and Google Calendar",
+    "details": ["12 tech news items", "3 meetings today", "2 PRs awaiting review"],
+    "nextSteps": "Say 'read briefing' in Telegram to hear the full summary"
+  }
+}
+```
+
+### ask_user
+
+Send a question via push notification. Three question types: confirm (yes/no), select (multiple choice), input (free text).
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| question | string | Yes | The question to ask (max 500 chars) |
+| type | "confirm" / "select" / "input" | No | Question type (default: confirm) |
+| options | string[] | No | Choices for select type (2-6 options) |
+| placeholder | string | No | Placeholder text for input type |
+| context | string | No | What you're working on, shown above the question |
+| agentName | string | No | Identifies this Hermes instance |
+
+**Example — dangerous command approval:**
+
+```json
+{
+  "question": "Allow: rm -rf /tmp/build-artifacts/*",
+  "type": "confirm",
+  "context": "Cleaning up 2.3GB of stale build artifacts from last week",
+  "agentName": "Hermes - server-maintenance"
+}
+```
+
+### wait_for_answer
+
+Poll for the user's response. Blocks until answered or timeout.
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| correlationId | string | Yes | The correlationId from ask_user |
+| timeoutMs | integer | No | How long to wait (default 30000, max 55000) |
+
+### cancel_question
+
+Cancel a pending question that's no longer relevant.
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| correlationId | string | Yes | The correlationId to cancel |
+
+## Human-in-the-Loop Flow
+
+```
+result = ask_user({
+  question: "Deploy the updated config to production?",
+  type: "confirm",
+  context: "nginx config updated with new rate limits",
+  agentName: "Hermes - devops"
+})
+
+for attempt in 1..3:
+    answer = wait_for_answer({ correlationId: result.correlationId, timeoutMs: 55000 })
+    if answer.answered:
+        if answer.value == "yes":
+            // proceed with deployment
+        else:
+            // abort and notify via active platform
+        break
+
+if not answer.answered:
+    // fall back to asking in the active chat platform
+```
+
+## Identifying Your Instance
+
+Always pass `agentName` so the user knows which Hermes profile or task is asking.
+
+**Format:** `"Hermes - {profile or task}"`
+
+**Examples:**
+- `"Hermes - daily-briefing"`
+- `"Hermes - server-maintenance"`
+- `"Hermes - code-review"`
+- `"Hermes - personal-assistant"`
+
+## Notification Etiquette
+
+- **Titles under 60 characters.** Phone lock screens truncate aggressively.
+- **Bodies under 200 characters.** Put detail in the context object.
+- **Max 3 push notifications per task.** If the user is in an active chat, prefer that channel.
+- **Don't duplicate.** If you already sent the message via Telegram/Discord, only send a push if the user hasn't read it within a reasonable time.
