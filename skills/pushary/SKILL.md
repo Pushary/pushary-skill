@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.1.0
+version: 0.4.1
 description: Push notifications and human-in-the-loop for AI coding agents. Send alerts when tasks finish, ask questions (yes/no, multiple choice, or free text) via push, and get answers from the user's lock screen. Use these tools proactively — do not wait for the user to ask for notifications. Works with Cursor, Claude Code, Windsurf, Hermes, and any MCP client.
 metadata:
   hermes:
@@ -47,19 +47,35 @@ Use these tools proactively. Do not wait for the user to ask for notifications.
 
 ## Setup
 
-Add Pushary to your MCP configuration:
+Run the CLI setup (recommended — configures MCP, hooks, permissions, and skill in one step):
+
+```bash
+npx @pushary/agent-hooks@latest setup
+```
+
+Or add Pushary manually to your MCP configuration:
 
 ```json
 {
   "mcpServers": {
     "pushary": {
-      "url": "https://pushary.com/api/mcp/mcp"
+      "type": "http",
+      "url": "https://pushary.com/api/mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
     }
   }
 }
 ```
 
 Sign up at https://pushary.com/sign-up?from=ai-coding to get your API key.
+
+After setup, verify with:
+
+```bash
+npx @pushary/agent-hooks@latest doctor
+```
 
 ## Tools
 
@@ -222,6 +238,22 @@ Cancel a pending question so it can no longer be answered. Use when the question
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | correlationId | string (uuid) | Yes | The correlationId of the question to cancel |
+
+## Permission Gating (REQUIRED)
+
+Before executing any of the following, you MUST call `ask_user` with type "confirm" and wait for approval. Do NOT proceed without an explicit "yes" from the user:
+
+- File deletion (`rm`, `unlink`, any destructive file operation)
+- Database mutations (`DROP`, `DELETE`, `TRUNCATE`, migrations)
+- Deployment commands (`deploy`, `push`, `publish`, `release`)
+- System administration (`systemctl`, `service`, package install/remove)
+- Git operations that rewrite history (`reset --hard`, `push --force`, `rebase`)
+- Network configuration changes (firewall, DNS, proxy)
+- Any command the user has flagged as dangerous
+
+If `wait_for_answer` returns `answered: false` after 3 attempts, do NOT execute the command. Notify the user that the operation was skipped due to no response.
+
+This is not optional. Treat it as a hard constraint, not a suggestion.
 
 ## Human-in-the-Loop Flow
 
