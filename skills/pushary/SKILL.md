@@ -160,7 +160,7 @@ When `askQuestion` is provided, the response includes a `linkedCorrelationId` yo
 
 ### ask_user
 
-Send a question to the user via push notification. Supports three question types. Returns a `correlationId` that you pass to `wait_for_answer` to get the response.
+Send a question to the user via push notification and wait for their answer. By default, this tool **blocks** until the user responds or the timeout is reached — no need to call `wait_for_answer` separately.
 
 **Parameters:**
 
@@ -171,13 +171,20 @@ Send a question to the user via push notification. Supports three question types
 | options | string[] | No | Choices for select type (2-6 options). Required when type is select. |
 | placeholder | string | No | Placeholder text for input type (max 200 chars) |
 | context | string | No | What the agent is working on, shown above the question (max 500 chars) |
-| agentName | string | No | Identifies which agent is asking (e.g., "Claude Code - myproject") |
+| wait | boolean | No | Wait for the answer before returning (default: true). Set false for manual polling. |
+| timeoutMs | integer | No | Max wait time in ms (max 55000). Uses site policy if omitted. |
+| agentName | string | No | Identifies which agent is asking. Format: "{Agent} - {project}" (e.g., "Claude Code - myproject") |
 | callbackUrl | string | No | Webhook URL to POST the answer to when the user responds |
 | subscriberIds | string[] | No | Target specific subscriber IDs |
 | externalIds | string[] | No | Target by external IDs |
 | tags | string[] | No | Target by subscriber tags |
 
-**Returns:** `{ "correlationId": "uuid", "status": "pending", "expiresInSeconds": 600 }`
+**Returns (when wait=true, default):**
+- `{ "answered": true, "value": "yes", "correlationId": "uuid" }` — user responded
+- `{ "answered": false, "timedOut": true, "correlationId": "uuid" }` — timeout reached
+
+**Returns (when wait=false):**
+- `{ "correlationId": "uuid", "status": "pending", "expiresInSeconds": 600 }` — use `wait_for_answer` to poll
 
 **Example — confirm (yes/no):**
 
@@ -216,7 +223,7 @@ Send a question to the user via push notification. Supports three question types
 
 ### wait_for_answer
 
-Long-poll for the user's response to a question sent via `ask_user`. Blocks until the user responds or the timeout is reached.
+Poll for the user's response to a question sent via `ask_user` with `wait: false`. Not needed when using the default blocking mode.
 
 **Parameters:**
 
@@ -251,21 +258,13 @@ Before executing any of the following, you MUST call `ask_user` with type "confi
 - Network configuration changes (firewall, DNS, proxy)
 - Any command the user has flagged as dangerous
 
-If `wait_for_answer` returns `answered: false` after 3 attempts, do NOT execute the command. Notify the user that the operation was skipped due to no response.
+If `ask_user` returns `answered: false`, do NOT execute the command. Send a notification that the operation was skipped due to no response.
 
 This is not optional. Treat it as a hard constraint, not a suggestion.
 
 ## Human-in-the-Loop Flow
 
-Follow this exact sequence when you need a decision from the user:
-
-1. Call `ask_user` with a clear, concise question and the appropriate type.
-2. Immediately call `wait_for_answer` with the returned `correlationId` and `timeoutMs: 55000`.
-3. If `wait_for_answer` returns `{ "answered": false }`, retry the same `wait_for_answer` call up to 3 times. The answer persists in Redis for 10 minutes, so it will be there when the user responds.
-4. Once you receive `{ "answered": true, "value": "..." }`, act on the decision.
-5. If the user answers in chat before the push response arrives, continue normally and call `cancel_question` to clean up.
-
-**Pseudocode:**
+One tool call — `ask_user` blocks and returns the answer:
 
 ```
 result = ask_user({
@@ -275,18 +274,14 @@ result = ask_user({
   context: "Setting up authentication for the new API",
   agentName: "Claude Code - myproject"
 })
-correlationId = result.correlationId
 
-for attempt in 1..3:
-    answer = wait_for_answer({ correlationId, timeoutMs: 55000 })
-    if answer.answered:
-        // answer.value = "JWT tokens" (the selected option)
-        // proceed with the chosen approach
-        break
-
-if not answer.answered after 3 attempts:
-    // user did not respond — pick the safe default or ask in chat
+if result.answered:
+    // result.value = "JWT tokens" — proceed with the chosen approach
+else:
+    // user did not respond — pick the safe default or notify and skip
 ```
+
+If the user answers in chat before the push response arrives, continue normally and call `cancel_question` with the `correlationId` to clean up.
 
 ## Identifying Your Agent
 

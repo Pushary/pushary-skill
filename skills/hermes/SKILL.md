@@ -88,9 +88,9 @@ Send a one-way push notification. Optionally include structured context for a ri
 }
 ```
 
-### ask_user
+### pushary_ask
 
-Send a question via push notification. Three question types: confirm (yes/no), select (multiple choice), input (free text).
+Ask a question via push notification and **wait for the answer** (blocks by default). Three question types: confirm (yes/no), select (multiple choice), input (free text).
 
 **Parameters:**
 
@@ -101,7 +101,13 @@ Send a question via push notification. Three question types: confirm (yes/no), s
 | options | string[] | No | Choices for select type (2-6 options) |
 | placeholder | string | No | Placeholder text for input type |
 | context | string | No | What you're working on, shown above the question |
-| agentName | string | No | Identifies this Hermes instance |
+| agent_name | string | No | Identifies this Hermes instance |
+| wait | boolean | No | Wait for answer before returning (default: true) |
+| timeout_ms | integer | No | Max wait per attempt in ms (default 30000, max 55000) |
+
+**Returns:**
+- `{ "answered": true, "value": "yes" }` — user responded
+- `{ "answered": false, "timedOut": true }` — no response within timeout
 
 **Example — dangerous command approval:**
 
@@ -110,47 +116,45 @@ Send a question via push notification. Three question types: confirm (yes/no), s
   "question": "Allow: rm -rf /tmp/build-artifacts/*",
   "type": "confirm",
   "context": "Cleaning up 2.3GB of stale build artifacts from last week",
-  "agentName": "Hermes - server-maintenance"
+  "agent_name": "Hermes - server-maintenance"
 }
 ```
 
-### wait_for_answer
+### pushary_wait
 
-Poll for the user's response. Blocks until answered or timeout.
+Poll for a response when `pushary_ask` was called with `wait: false`. Not needed with default blocking mode.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| correlationId | string | Yes | The correlationId from ask_user |
-| timeoutMs | integer | No | How long to wait (default 30000, max 55000) |
+| correlation_id | string | Yes | The correlationId from pushary_ask |
+| timeout_ms | integer | No | How long to wait (default 30000, max 55000) |
 
-### cancel_question
+### pushary_cancel
 
 Cancel a pending question that's no longer relevant.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| correlationId | string | Yes | The correlationId to cancel |
+| correlation_id | string | Yes | The correlationId to cancel |
 
 ## Human-in-the-Loop Flow
 
+One call — `pushary_ask` blocks and returns the answer:
+
 ```
-result = ask_user({
+result = pushary_ask({
   question: "Deploy the updated config to production?",
   type: "confirm",
   context: "nginx config updated with new rate limits",
-  agentName: "Hermes - devops"
+  agent_name: "Hermes - devops"
 })
 
-for attempt in 1..3:
-    answer = wait_for_answer({ correlationId: result.correlationId, timeoutMs: 55000 })
-    if answer.answered:
-        if answer.value == "yes":
-            // proceed with deployment
-        else:
-            // abort and notify via active platform
-        break
-
-if not answer.answered:
+if result.answered:
+    if result.value == "yes":
+        // proceed with deployment
+    else:
+        // abort and notify via active platform
+else:
     // fall back to asking in the active chat platform
 ```
 
