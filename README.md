@@ -20,7 +20,7 @@
 
 ---
 
-Your AI agent finishes a 20-minute refactor while you're making coffee. Without Pushary, you'd never know until you checked back. With Pushary, you get a push notification on your phone the moment it's done — or a question on your lock screen when the agent needs a decision.
+Your AI agent finishes a 20-minute refactor while you're making coffee. Without Pushary, you'd never know until you checked back. With Pushary, you get a push notification on your phone the moment it's done - or a question on your lock screen when the agent needs a decision.
 
 ## How It Works
 
@@ -30,13 +30,13 @@ AI Agent  ->  MCP Protocol  ->  Pushary API  ->  Push Notification  ->  Your Pho
 
 Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your AI coding agent to push notifications. The agent calls Pushary's tools over the Model Context Protocol, and you receive notifications instantly on any device.
 
-**Three question types** — yes/no confirmations, multiple choice, and free text input. Your agent picks the right one for the situation.
+**Three question types** - yes/no confirmations, multiple choice, and free text input. Your agent picks the right one for the situation.
 
-**Rich context notifications** — agents can include file changes, error details, and suggested next steps in a detail page you see when tapping the notification.
+**Rich context notifications** - agents can include file changes, error details, and suggested next steps in a detail page you see when tapping the notification.
 
-**Agent identification** — when you run multiple agents, each notification shows which agent is asking so you always know what you're responding to.
+**Agent identification** - when you run multiple agents, each notification shows which agent is asking so you always know what you're responding to.
 
-**Permission hooks** — route Claude Code's tool approval prompts through push notifications so you can approve or deny from your phone.
+**Permission hooks** - route Claude Code's tool approval prompts through push notifications so you can approve or deny from your phone.
 
 ---
 
@@ -187,6 +187,32 @@ hermes skills install pushary
 
 ---
 
+## Setup: OpenAI Codex
+
+Codex has native MCP support. One command:
+
+**1. Set your API key** in your shell profile (`~/.zshrc` or `~/.bashrc`):
+
+```bash
+export PUSHARY_API_KEY="pk_xxx.sk_xxx"
+```
+
+**2. Add the MCP server:**
+
+```bash
+codex mcp add pushary --url https://pushary.com/api/mcp/mcp --bearer-token-env-var PUSHARY_API_KEY
+```
+
+That's it. Codex now has access to all Pushary tools - notifications, questions, and rich context.
+
+**Or use the setup wizard** (configures everything including the API key):
+
+```bash
+npx @pushary/agent-hooks setup
+```
+
+---
+
 ## Setup: Cursor / Windsurf / Other MCP Agents
 
 **1. Add the MCP server** to your agent's MCP config (usually `.cursor/mcp.json` or similar):
@@ -214,14 +240,15 @@ npx skills add Pushary/pushary-skill
 
 ## Tools
 
-The skill exposes 4 MCP tools:
+The skill exposes 5 MCP tools:
 
 | Tool | Description |
 |------|-------------|
 | `send_notification` | Send a push notification with optional rich context (file changes, errors, next steps) |
-| `ask_user` | Ask the user a question via push — yes/no, multiple choice, or free text |
+| `ask_user` | Ask the user a question via push - yes/no, multiple choice, or free text |
 | `wait_for_answer` | Long-poll for the user's response to a question |
 | `cancel_question` | Cancel a pending question that's no longer relevant |
+| `list_sessions` | Read-only view of your live agent sessions and pending questions |
 
 Full tool documentation with parameters, examples, and usage guidelines is in [`skills/pushary/SKILL.md`](skills/pushary/SKILL.md).
 
@@ -240,9 +267,9 @@ Agent: proceeds with JWT implementation
 ```
 
 Supports three question types:
-- **Confirm** — yes/no binary decisions
-- **Select** — pick from 2-6 options
-- **Input** — free text response
+- **Confirm** - yes/no binary decisions
+- **Select** - pick from 2-6 options
+- **Input** - free text response
 
 The flow uses `ask_user` -> `wait_for_answer` with automatic retries. Answers persist for 10 minutes, so there's no rush.
 
@@ -278,4 +305,4 @@ This project is fully funded by **[RalphNex OU](https://ralphnex.com/)**, an Est
 
 ## License
 
-[MIT](LICENSE) — Copyright (c) 2025 RalphNex OU
+[MIT](LICENSE) - Copyright (c) 2025 RalphNex OU

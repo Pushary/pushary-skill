@@ -1,14 +1,14 @@
 ---
 name: pushary
-version: 0.4.1
+version: 0.5.0
 description: Push notifications for AI agents. Ask questions, send alerts, get answers from user's phone.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop
 ---
 
-# Pushary — Push Notifications for AI Agents
+# Pushary - Push Notifications for AI Agents
 
-Three tools. Use proactively — don't wait for the user to ask.
+Three tools. Use proactively - don't wait for the user to ask.
 
 ## ask_user
 
@@ -34,9 +34,13 @@ One-way alert. Use when a task completes, errors, or needs attention.
 
 Cancel a pending question: `{ "correlationId": "..." }`
 
+## list_sessions
+
+Read-only: see your live agent sessions and pending questions (no notification sent). Useful to check if a parallel session is blocked.
+
 ## Rules
 
 - `agentName` format: `"{Agent} - {project}"` (e.g., `"Cursor - api-server"`)
 - Max 3 notifications per task
 - MUST `ask_user` type "confirm" before destructive operations (delete, deploy, force push)
-- If `answered: false`, do NOT execute — notify user it was skipped
+- If `answered: false`, do NOT execute - notify user it was skipped

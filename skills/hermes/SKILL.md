@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.4.1
+version: 0.5.0
 description: Push notifications and human-in-the-loop for Hermes Agent. Send alerts when tasks finish, ask questions (yes/no, multiple choice, or free text) via web push, and get answers from the user's lock screen. Use these tools proactively when the user is not actively in a chat session. Works alongside Hermes's built-in messaging platforms (Telegram, Discord, etc.) as a universal fallback channel.
 metadata:
   hermes:
@@ -14,7 +14,7 @@ metadata:
   tags: notifications, push, mcp, human-in-the-loop, hermes, alerts, permissions
 ---
 
-# Pushary — Push Notifications for Hermes Agent
+# Pushary - Push Notifications for Hermes Agent
 
 Pushary adds web push notifications as a delivery channel for Hermes. Use it when the user is not actively monitoring a chat platform, or when you need to reach them on their phone's lock screen for a time-sensitive decision.
 
@@ -24,7 +24,7 @@ Pushary adds web push notifications as a delivery channel for Hermes. Use it whe
 - The user has no active chat session (Telegram, Discord, etc.)
 - You need to reach the user's phone lock screen for a quick decision
 - A background task finishes and the user may have walked away
-- Permission escalation — a dangerous command needs approval
+- Permission escalation - a dangerous command needs approval
 - The user explicitly asked for push notifications
 
 **Use the active Hermes platform when:**
@@ -33,8 +33,8 @@ Pushary adds web push notifications as a delivery channel for Hermes. Use it whe
 - The user prefers responses in their current platform
 
 **Use both when:**
-- A critical error occurs — notify via push AND the active platform
-- A long-running task completes — push ensures they see it even if they closed the chat
+- A critical error occurs - notify via push AND the active platform
+- A long-running task completes - push ensures they see it even if they closed the chat
 
 ## Setup
 
@@ -61,6 +61,8 @@ Sign up at https://pushary.com/sign-up?from=hermes to get your API key.
 
 ### send_notification
 
+(Over MCP this tool is named send_notification; the native Hermes plugin exposes the same capability as pushary_notify.)
+
 Send a one-way push notification. Optionally include structured context for a rich detail page.
 
 **Parameters:**
@@ -72,7 +74,7 @@ Send a one-way push notification. Optionally include structured context for a ri
 | agentName | string | No | Identifies this Hermes instance (e.g., "Hermes - daily-briefing") |
 | context | object | No | Rich context with type, summary, details, filesChanged, errorMessage, nextSteps |
 
-**Example — cron task completed:**
+**Example - cron task completed:**
 
 ```json
 {
@@ -88,7 +90,7 @@ Send a one-way push notification. Optionally include structured context for a ri
 }
 ```
 
-### pushary_ask
+### ask_user
 
 Ask a question via push notification and **wait for the answer** (blocks by default). Three question types: confirm (yes/no), select (multiple choice), input (free text).
 
@@ -101,52 +103,52 @@ Ask a question via push notification and **wait for the answer** (blocks by defa
 | options | string[] | No | Choices for select type (2-6 options) |
 | placeholder | string | No | Placeholder text for input type |
 | context | string | No | What you're working on, shown above the question |
-| agent_name | string | No | Identifies this Hermes instance |
+| agentName | string | No | Identifies this Hermes instance |
 | wait | boolean | No | Wait for answer before returning (default: true) |
-| timeout_ms | integer | No | Max wait per attempt in ms (default 30000, max 55000) |
+| timeoutMs | integer | No | Max wait in ms (max 55000). Uses the site policy timeout if omitted. |
 
 **Returns:**
-- `{ "answered": true, "value": "yes" }` — user responded
-- `{ "answered": false, "timedOut": true }` — no response within timeout
+- `{ "answered": true, "value": "yes" }` - user responded
+- `{ "answered": false, "timedOut": true }` - no response within timeout
 
-**Example — dangerous command approval:**
+**Example - dangerous command approval:**
 
 ```json
 {
   "question": "Allow: rm -rf /tmp/build-artifacts/*",
   "type": "confirm",
   "context": "Cleaning up 2.3GB of stale build artifacts from last week",
-  "agent_name": "Hermes - server-maintenance"
+  "agentName": "Hermes - server-maintenance"
 }
 ```
 
-### pushary_wait
+### wait_for_answer
 
-Poll for a response when `pushary_ask` was called with `wait: false`. Not needed with default blocking mode.
+Poll for a response when `ask_user` was called with `wait: false`. Not needed with default blocking mode.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| correlation_id | string | Yes | The correlationId from pushary_ask |
-| timeout_ms | integer | No | How long to wait (default 30000, max 55000) |
+| correlationId | string | Yes | The correlationId from ask_user |
+| timeoutMs | integer | No | How long to wait (default 30000, max 55000) |
 
-### pushary_cancel
+### cancel_question
 
 Cancel a pending question that's no longer relevant.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| correlation_id | string | Yes | The correlationId to cancel |
+| correlationId | string | Yes | The correlationId to cancel |
 
 ## Human-in-the-Loop Flow
 
-One call — `pushary_ask` blocks and returns the answer:
+One call - `ask_user` blocks and returns the answer:
 
 ```
-result = pushary_ask({
+result = ask_user({
   question: "Deploy the updated config to production?",
   type: "confirm",
   context: "nginx config updated with new rate limits",
-  agent_name: "Hermes - devops"
+  agentName: "Hermes - devops"
 })
 
 if result.answered:
