@@ -7,7 +7,7 @@ metadata:
     tags: [notifications, push, human-in-the-loop, alerts, permissions, mcp]
     category: productivity
     requires_toolsets: []
-  tags: notifications, push, mcp, human-in-the-loop, cursor, claude, windsurf, hermes, lovable, alerts, permissions
+  tags: notifications, push, mcp, human-in-the-loop, cursor, claude, windsurf, hermes, alerts, permissions
 ---
 
 # Pushary - Push Notifications for AI Agents

@@ -238,6 +238,18 @@ npx skills add Pushary/pushary-skill
 
 ---
 
+## Setup: Lovable
+
+[Lovable](https://lovable.dev) is a hosted app builder, so there is no local install step (`npx skills add` does not apply). You connect the MCP server in Lovable's UI, then paste the skill into Lovable's Knowledge so the agent uses it on its own.
+
+**1. Connect the MCP server.** In Lovable, go to **Settings -> Connectors -> Personal connectors** (paid Lovable plans), click **New MCP server**, set the URL to `https://pushary.com/api/mcp/mcp`, choose **Bearer token**, and paste your API key (`pk_xxx.sk_xxx`).
+
+**2. Add the skill to Knowledge.** Lovable cannot install skills via `npx`, so paste the skill guidance into **Settings -> Knowledge**. Use the condensed [`SKILL-LITE.md`](skills/pushary/SKILL-LITE.md) as the source. This makes the Lovable agent notify you when a build finishes and ask before risky changes, without you prompting each time.
+
+Lovable gets notifications and questions only (no enforced gate, since it has no permission hook). Full walkthrough: [Lovable guide](https://pushary.com/docs/agents/guides/lovable).
+
+---
+
 ## Tools
 
 The skill exposes 5 MCP tools:
@@ -288,8 +300,8 @@ Works with any agent that supports [skills.sh](https://skills.sh/) or the Model 
 - [Hermes Agent](https://hermes-agent.nousresearch.com/) (native plugin or MCP)
 - [Cursor](https://cursor.com/) (MCP)
 - [Windsurf](https://windsurf.com/) (MCP)
+- [Lovable](https://lovable.dev/) (MCP connector + skill via Knowledge)
 - [OpenAI Codex](https://openai.com/index/openai-codex/) (MCP)
-- [Lovable](https://lovable.dev/) (MCP)
 - And [39+ more agents](https://skills.sh/)
 
 ## Contributing
