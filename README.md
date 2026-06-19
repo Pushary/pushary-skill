@@ -289,6 +289,7 @@ Works with any agent that supports [skills.sh](https://skills.sh/) or the Model 
 - [Cursor](https://cursor.com/) (MCP)
 - [Windsurf](https://windsurf.com/) (MCP)
 - [OpenAI Codex](https://openai.com/index/openai-codex/) (MCP)
+- [Lovable](https://lovable.dev/) (MCP)
 - And [39+ more agents](https://skills.sh/)
 
 ## Contributing
