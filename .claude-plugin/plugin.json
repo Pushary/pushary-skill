@@ -1,0 +1,13 @@
+{
+  "name": "pushary",
+  "displayName": "Pushary",
+  "description": "Push notifications, human-in-the-loop questions, and permission gating for AI agents. Get a push when a task finishes, answer the agent from your phone, and approve risky commands before they run.",
+  "version": "0.1.0",
+  "author": { "name": "Pushary", "email": "business@pushary.com" },
+  "homepage": "https://pushary.com",
+  "repository": "https://github.com/Pushary/pushary-skill",
+  "license": "MIT",
+  "keywords": ["notifications", "push", "human-in-the-loop", "permissions", "approvals", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

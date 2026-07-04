@@ -44,6 +44,19 @@ Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your 
 
 ## Setup: Claude Code
 
+### Option 0: Claude Code plugin (one command)
+
+This repo is a Claude Code plugin. Install it and you get the MCP tools, the permission hooks, and the skill in one step:
+
+```
+/plugin marketplace add Pushary/pushary-skill
+/plugin install pushary
+```
+
+Set `PUSHARY_API_KEY` in your environment (get a key at [pushary.com](https://pushary.com), $9.99/mo after a 7-day trial). Claude Code expands `${PUSHARY_API_KEY}` in the plugin's MCP config.
+
+Pick one install path. If you already ran `npx @pushary/agent-hooks setup`, the same hooks live in your `~/.claude/settings.json`; installing the plugin on top runs each hook twice. Either uninstall the plugin or run `npx @pushary/agent-hooks clean` before switching.
+
 ### Option A: MCP Server (notifications + questions)
 
 The agent calls Pushary tools when it wants to notify you or ask a question.
