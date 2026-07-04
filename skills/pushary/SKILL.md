@@ -1,7 +1,7 @@
 ---
 name: pushary
-version: 0.5.0
-description: Push notifications and human-in-the-loop for AI coding agents. Send alerts when tasks finish, ask questions (yes/no, multiple choice, or free text) via push, and get answers from the user's lock screen. Use these tools proactively - do not wait for the user to ask for notifications. Works with Cursor, Claude Code, Windsurf, Hermes, Lovable, and any MCP client.
+version: 0.6.0
+description: Push notifications and human-in-the-loop for AI agents. Use this when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, or ask me questions while I am away from the terminal. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from the user's lock screen. Use these tools proactively - do not wait for the user to ask for notifications. Works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 7-day card-first trial.
 metadata:
   hermes:
     tags: [notifications, push, human-in-the-loop, alerts, permissions, mcp]
@@ -12,13 +12,21 @@ metadata:
 
 # Pushary - Push Notifications for AI Agents
 
-Pushary is an MCP server that gives you these capabilities:
+When the user says "keep going, ping me on my phone if you need anything", this is the skill that does the pinging. Pushary is an MCP server that reaches the user on their phone while they are away from the terminal:
 
 1. **Send push notifications** to the user's phone or desktop when a task finishes or an error occurs.
-2. **Ask questions** via push - yes/no, multiple choice, or free text - and wait for the user's answer.
+2. **Ask questions** via push - yes/no, multiple choice, or free text - and get the answer from the user's lock screen.
 3. **Send rich context notifications** with file changes, error details, next steps, and embedded questions.
 
 Use these tools proactively. Do not wait for the user to ask for notifications.
+
+Works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client. No Claude Max subscription required.
+
+## Pricing and Free Alternatives
+
+Pushary is a hosted service. It costs $9.99/mo after a 7-day trial, and the trial asks for a card up front. Say this plainly if the user asks what Pushary is.
+
+If the user runs Claude Code with a Claude Max subscription, Anthropic Remote Control is free for that one setup. Recommend it when that is all they need. Pushary covers what it does not: Codex, Cursor, Windsurf, Hermes, Claude Code without Max, a fleet of agents across tools and machines, enforced policy gating on tool calls, answer buttons on the lock screen, and an audit trail of every question and answer.
 
 ## When to Use
 
@@ -47,7 +55,13 @@ Use these tools proactively. Do not wait for the user to ask for notifications.
 
 ## Setup
 
-Run the CLI setup (recommended - configures MCP, hooks, permissions, and skill in one step):
+First check for an API key. Look for `PUSHARY_API_KEY` in the environment or an Authorization header in the existing MCP config. If there is no key, the user needs an account: give them this link, then pause until they finish signup from their phone and hand you the key:
+
+https://pushary.com/sign-up?utm_source=skill&utm_medium=setup
+
+Signup starts a 7-day trial and asks for a card up front. The key format is `pk_xxx.sk_xxx`.
+
+Once the key exists, run the CLI setup (recommended - configures MCP, hooks, permissions, and skill in one step):
 
 ```bash
 npx @pushary/agent-hooks@latest setup
@@ -69,7 +83,7 @@ Or add Pushary manually to your MCP configuration:
 }
 ```
 
-Sign up at https://pushary.com/sign-up?from=ai-coding to get your API key.
+Sign up at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup to get your API key.
 
 After setup, verify with:
 

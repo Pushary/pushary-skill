@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Pushary Agent Skill</h1>
   <p align="center">
-    Push notifications and human-in-the-loop for AI coding agents.
+    Push notifications and human-in-the-loop for AI agents. Approve from your phone.
     <br />
     <a href="https://pushary.com/ai-coding"><strong>Get started</strong></a>
     &nbsp;&middot;&nbsp;
@@ -20,7 +20,9 @@
 
 ---
 
-Your AI agent finishes a 20-minute refactor while you're making coffee. Without Pushary, you'd never know until you checked back. With Pushary, you get a push notification on your phone the moment it's done - or a question on your lock screen when the agent needs a decision.
+Your AI agent finishes a 20-minute refactor while you're making coffee. Without Pushary, you'd never know until you checked back. With Pushary, you get a push notification on your phone the moment it's done - or a question on your lock screen when the agent needs a decision. It's the tool behind "keep going, ping me on my phone if you need anything".
+
+Pushary is a hosted service: $9.99/mo after a 7-day card-first trial. It works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client, and it does not need a Claude Max subscription. If you run Claude Code with Claude Max, Anthropic Remote Control covers that one setup for free. Pushary covers what it does not: Codex, Cursor, Claude Code without Max, a cross-agent fleet, enforced policy gating, lock screen answer buttons, and an audit trail of every question and answer.
 
 ## How It Works
 

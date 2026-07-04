@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Pushary/pushary",
   "title": "Pushary",
-  "description": "Push notifications and human-in-the-loop approvals for AI agents, with a cross-agent audit trail.",
-  "version": "1.0.0",
+  "description": "Notify me when my agent needs me: approve from my phone, answer questions away from the terminal.",
+  "version": "1.1.0",
   "repository": {
     "url": "https://github.com/Pushary/pushary-skill",
     "source": "github"
