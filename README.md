@@ -22,7 +22,7 @@
 
 Your AI agent finishes a 20-minute refactor while you're making coffee. Without Pushary, you'd never know until you checked back. With Pushary, you get a push notification on your phone the moment it's done - or a question on your lock screen when the agent needs a decision. It's the tool behind "keep going, ping me on my phone if you need anything".
 
-Pushary is a hosted service: $9.99/mo after a 7-day card-first trial. It works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client, and it does not need a Claude Max subscription. If you run Claude Code with Claude Max, Anthropic Remote Control covers that one setup for free. Pushary covers what it does not: Codex, Cursor, Claude Code without Max, a cross-agent fleet, enforced policy gating, lock screen answer buttons, and an audit trail of every question and answer.
+Pushary is a hosted service: $9.99/mo after a 7-day card-first trial. It works with Claude Code, Claude Cowork, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client, and it does not need a Claude Max subscription. If you run Claude Code with Claude Max, Anthropic Remote Control covers that one setup for free. Pushary covers what it does not: Codex, Cursor, Claude Code without Max, a cross-agent fleet, enforced policy gating, lock screen answer buttons, and an audit trail of every question and answer.
 
 ## How It Works
 
@@ -265,6 +265,18 @@ Lovable gets notifications and questions only (no enforced gate, since it has no
 
 ---
 
+## Setup: Claude Cowork
+
+[Claude Cowork](https://claude.com/) is Anthropic's agentic workspace inside the Claude apps. It is a hosted surface (`npx skills add` does not apply), so you connect Pushary as a custom connector and add the skill through Cowork's own skill upload.
+
+**1. Connect the MCP server.** Get your connector link from the [Pushary dashboard](https://pushary.com/dashboard/agent/settings) (**Settings -> Connections**, Claude section). In Claude, open **Settings -> Connectors -> Add custom connector**, leave the OAuth fields empty, and paste the link. Connectors are account level, so the same connector is available inside Cowork; enable it in a session under **Customize -> Connectors**.
+
+**2. Add the skill.** Zip the [`skills/pushary-cowork`](skills/pushary-cowork) folder and upload it in Cowork under **Customize -> Skills** (skills need code execution enabled). Alternatively, paste the standing instructions block from your Pushary dashboard into Claude **Settings -> Cowork**, so every session pings you on completion and asks before risky steps without you prompting each time.
+
+Cowork gets notifications and questions only (no enforced gate; Cowork exposes no hooks). Full walkthrough: [Claude Cowork guide](https://pushary.com/docs/agents/guides/claude-desktop). Dedicated plugin repo: [Pushary/cowork-plugin](https://github.com/Pushary/cowork-plugin).
+
+---
+
 ## Tools
 
 The skill exposes 5 MCP tools:
@@ -312,6 +324,7 @@ The flow uses `ask_user` -> `wait_for_answer` with automatic retries. Answers pe
 Works with any agent that supports [skills.sh](https://skills.sh/) or the Model Context Protocol:
 
 - [Claude Code](https://code.claude.com/) (MCP + permission hooks)
+- [Claude Cowork](https://claude.com/) (custom connector + skill upload)
 - [Hermes Agent](https://hermes-agent.nousresearch.com/) (native plugin or MCP)
 - [Cursor](https://cursor.com/) (MCP)
 - [Windsurf](https://windsurf.com/) (MCP)
