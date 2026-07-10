@@ -197,7 +197,7 @@ mcp:
 
 ```bash
 hermes skills tap add Pushary/pushary-skill
-hermes skills install pushary
+hermes skills install pushary-hermes
 ```
 
 ---
