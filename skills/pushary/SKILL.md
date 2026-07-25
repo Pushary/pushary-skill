@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.6.1
+version: 0.7.0
 description: Push notifications and human-in-the-loop for AI agents. Use this when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from the user's lock screen. Use these tools proactively - do not wait for the user to ask for notifications. Works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 7-day card-first trial.
 metadata:
   hermes:
@@ -47,6 +47,11 @@ If the user runs Claude Code with a Claude Max subscription, Anthropic Remote Co
 **Ask with type "input" when:**
 - You need a name, path, value, or free-text decision
 - The options cannot be enumerated in advance
+
+**Propose a scope when:**
+- You are about to start a multi-step run that will change several files
+- Call `propose_scope` once, before the work, not after
+- Skip it for a single quick edit; a scope prompt for one file is just noise
 
 **Do NOT notify when:**
 - The task is trivial or single-step
@@ -273,6 +278,36 @@ Cancel a pending question so it can no longer be answered. Use when the question
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | correlationId | string (uuid) | Yes | The correlationId of the question to cancel |
+
+### propose_scope
+
+Propose what a run will touch and block until the user ratifies it. Call **once**, at the start of a multi-step run, before doing work.
+
+The user sees the paths you intend to change, the areas you promise to leave alone, and your definition of done, and approves the whole thing in one tap. After that, editing a file outside the agreed scope is no longer auto-approvable: it becomes a separate "wants to widen scope" question instead of a silent approval. Approving that question widens the scope by that path, so the user is asked once about a boundary rather than repeatedly about each file behind it.
+
+Use glob syntax (`src/**`, `**/*.test.ts`). Shell commands are **not** scoped here; they stay governed by the permission policy.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| doneWhen | string | Yes | What "finished" means for this run. Carried for the human to judge against, never enforced automatically |
+| sessionId | string | Yes | Your per-session id. A scope with no session cannot be enforced and must never leak into another run |
+| allowedPaths | string[] | No | Globs you intend to change. Omit to propose no path restriction, which the user is told plainly |
+| offLimitsPaths | string[] | No | Globs you promise not to touch. These win wherever they overlap `allowedPaths` |
+| agentName | string | No | Name of the agent asking, format `"{Agent} - {project}"` |
+| timeoutMs | integer | No | How long this call blocks, max 55000 |
+
+**Returns:**
+- `{ "ratified": true, "answered": true, "value": "yes", "contract": {...} }` - the contract is live
+- `{ "ratified": false, "answered": true, "value": "no" }` - the user declined. Ask what scope they want; do **not** proceed as if they agreed
+- `{ "ratified": false, "answered": false }` - no answer yet. The scope is **not** in force
+
+**What enforcement depends on.** The contract is recorded and shown to the user by any MCP client. Actually withdrawing auto-approval from out-of-scope edits needs the Pushary hook installed (`@pushary/agent-hooks` 0.59.0 or later), which is how Claude Code, Codex and Gemini CLI run. Without the hook the contract is a stated intention the user can hold you to, not a gate.
+
+Scope lives for the session only and is never inherited by another run.
+
+**When not to use it.** A single quick edit does not need a scope. And do not propose a new scope mid-run to widen an old one: do the work and let the approval that follows widen it, which is what that flow is for.
 
 ### list_sessions
 
