@@ -60,16 +60,24 @@ If the user runs Claude Code with a Claude Max subscription, Anthropic Remote Co
 
 ## Setup
 
-First check for an API key. Look for `PUSHARY_API_KEY` in the environment or an Authorization header in the existing MCP config. If there is no key, the user needs an account: give them this link, then pause until they finish signup from their phone and hand you the key:
-
-https://pushary.com/sign-up?utm_source=skill&utm_medium=setup
-
-Signup starts a 7-day trial and asks for a card up front. The key format is `pk_xxx.sk_xxx`.
-
-Once the key exists, run the CLI setup (recommended - configures MCP, hooks, permissions, and skill in one step):
+Just run it. No account, no API key, and nothing to paste first:
 
 ```bash
 npx @pushary/agent-hooks@latest setup
+```
+
+It configures MCP, hooks, permissions and the skill in one step, then prints a QR code and waits.
+
+**Show the user your output and ask them to scan that QR with their phone camera.** Scanning pairs their Pushary app, which is what hands this machine its key. A tappable link and a fingerprint print under the QR for a phone already in hand. Do not ask the user for an API key, and do not send them to a signup page first: that is the old flow and it is strictly worse.
+
+Signup starts a 7-day trial and asks for a card up front, which happens in the app.
+
+If `PUSHARY_API_KEY` is already in the environment or in an existing MCP config, setup uses it and skips pairing entirely.
+
+No app on their phone yet? They can get it at https://pushary.com/download, or approve in a browser tab instead:
+
+```bash
+npx @pushary/agent-hooks@latest setup --connect browser
 ```
 
 Or add Pushary manually to your MCP configuration:
@@ -88,7 +96,7 @@ Or add Pushary manually to your MCP configuration:
 }
 ```
 
-Sign up at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup to get your API key.
+Manual configuration needs a key, so it means signing up first at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup and copying the key from the dashboard. Prefer `setup` above: it needs neither.
 
 After setup, verify with:
 

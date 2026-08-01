@@ -2,7 +2,20 @@
 
 Pushary is a hosted remote MCP server. There is nothing to clone, build, or run locally.
 
-## What you need
+## If you can run shell commands, do this instead
+
+One command, and it needs no account and no API key up front:
+
+```bash
+npx @pushary/agent-hooks@latest setup
+```
+
+It writes the MCP config, hooks and permissions for you, then prints a QR code.
+Show the user your output and ask them to scan it with their phone camera: that
+pairs their Pushary app, which is what hands this machine its key. Everything
+below is only for clients that cannot run a command.
+
+## What you need for a manual install
 
 A Pushary API key in the format `pk_xxx.sk_xxx`. Get one at https://pushary.com/sign-up
 (the agent plan is $9.99/mo after a 7 day trial). The key is the only required value.
