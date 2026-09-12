@@ -1,6 +1,6 @@
 {
   "name": "pushary",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Push notifications and human-in-the-loop for AI agents. Get a push when a task finishes, and answer the agent from your phone while you are away from the keyboard.",
   "author": {
     "name": "Pushary",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "Pushary",
     "shortDescription": "Answer your AI agent from your phone.",
-    "longDescription": "Pushary reaches you on your phone while an agent works. It sends a push when a long task finishes or fails, and it can ask you a question, yes or no, multiple choice, or free text, and wait for the answer from your lock screen. Every question and answer is recorded, so there is a trail of what was asked and what you decided. Works alongside Claude Code, Codex, Cursor and Hermes, so several agents land in one inbox instead of several terminals.",
+    "longDescription": "Pushary reaches you on your phone while an agent works. It sends a push when a long task finishes or fails, and it can ask you a question, yes or no, multiple choice, or free text, and wait for the answer from the app or supported notification actions. Every question and answer is recorded, so there is a trail of what was asked and what you decided. Works alongside Claude Code, Codex, Cursor and Hermes, so several agents land in one inbox instead of several terminals.",
     "developerName": "Pushary",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],

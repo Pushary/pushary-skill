@@ -1,136 +1,50 @@
 ---
 name: pushary-chatgpt
-version: 0.1.1
-description: For ChatGPT and Codex. Plan the work, get the plan approved once, route every decision to the user's phone, and send a push when it is done. Use this whenever a request takes more than one step, contains a choice the user should make rather than you, or will finish while the user is not reading the conversation. In Claude Code, Cursor, Windsurf or Hermes, use the pushary skill instead. Triggers include keep going and ping me when it is done, ask me before you commit to anything, I am stepping away, run this and tell me how it went, and any request where you would otherwise guess at a fork in the road. Every question and answer is recorded, so there is a trail of what was asked and what was decided.
+version: 0.1.2
+description: Reach the user through Pushary when ChatGPT or Codex needs an unresolved decision or has a meaningful unattended result. Honor existing authorization, batch questions, and follow the server's delivery policy. Use for requests such as ping me when done, ask while I am away, or run this overnight.
 metadata:
   tags: planning, approvals, human-in-the-loop, notifications, push, chatgpt, codex
 ---
 
-# Pushary: plan first, ask once, always report back
+# Pushary for ChatGPT and Codex
 
-Pushary reaches the person on their phone. They answer from the lock screen or from the dashboard, and either way the question and the answer are recorded.
+Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
 
-That changes how you should work. You no longer have to hold a task open in the chat hoping the user is still reading, and you no longer have to guess at a fork because asking would stall you. Work the loop below. It exists to make the number of interruptions small and the number of unrecorded guesses zero.
+## Plan without adding a permission step
 
-## The loop
+Find the decisions before acting. Resolve anything already answered in the conversation or available through a tool. Bundle genuine unresolved choices into one question, and continue authorized independent work. Ask for plan approval only when the user requested it or the plan exceeds their authorization.
 
-1. Plan the work and find the decisions before you start.
-2. Put the plan to the user as one question.
-3. Ask through `ask_user` at every real fork. Never guess.
-4. Finish with `send_notification`.
+## Ask only for the missing decision
 
-## 1. Plan before you act
+Use `ask_user` with `confirm` for an action approval, `select` for two to six options, or `input` for a fact only the user knows. Pass `agentName` as the actual host and task, such as `Codex - invoice audit`, plus a stable `sessionId` for the conversation. Do not rename yourself to another host.
 
-Before the first action, write out the steps in order and mark the points where you would have to choose.
+Do not duplicate the question in another channel while a phone answer is live. If the user is present, respect the current-client handoff and delivery settings instead of forcing another phone prompt.
 
-Finding the forks now is the whole efficiency gain. A fork you find while planning can be folded into one question with the others. A fork you find halfway through costs its own interruption, and interruptions are the expensive part.
+## Waiting and cancellation
 
-While planning, sort every open point into one of three piles:
+Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Follow the returned handoff rather than inventing a retry loop. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
 
-- **You can answer it.** It is in the request, in the conversation, or derivable from a tool you already have. Answer it and move on. This is not a decision.
-- **It only matters if a later step goes a certain way.** Leave it. Ask when you get there, if you get there.
-- **The user has to answer it.** Carry it to step 2 and ask it with the plan.
+Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
-## 2. Put the plan to the user once
+`ask_user` may block or return immediately according to policy. Poll once only when its returned action says `wait_for_answer`. Show `answerUrl` when it is present and useful; it is not guaranteed on every response. Use `cancel_question` when an answer is no longer needed, including when the user answers in chat, and settle any race before acting.
 
-One `ask_user` call with `type: "confirm"`.
+## Notify when the result needs attention
 
-- `question`: one line, answerable at a glance. "Start on this plan?"
-- `context`: the numbered steps and any assumption you made. Under 500 characters, so this is the plan, not an essay.
-- `intent`: the user's own request, one line.
-- `action`: what you will actually do first.
-- `blocker`: why you stopped here. For a plan: "Approving once means I will not stop again unless something is irreversible."
+Use `send_notification` for meaningful completion while the user is away, an unresolved failure, or an update they requested. Skip trivial completions and duplicate reports to someone already reading. Pass `context.type` as `task_complete`, `error` or `info`; put the result in `summary` and supporting detail in `details`, `filesChanged` or `nextSteps`. Do not add a follow-up question merely to keep the turn open.
 
-On `value: "yes"`, start. On `"no"`, do not proceed and do not quietly re-plan. Ask what they want instead with `type: "input"`.
+## Optional file scope in Codex
 
-If the plan has one genuine fork in it, put the fork in the same call as a `select` rather than sending a confirm now and a select two minutes later.
+Use `propose_scope` when the user requested an enforced file boundary or one remains unresolved. Pass `allowedPaths`, `offLimitsPaths`, `doneWhen` and `sessionId`. Do not re-request authorization for an already agreed task. Only `ratified: true` establishes the server contract; chat approval is not a server-ratified scope. Enforcement requires the supported Pushary hook. Shell commands remain governed by the host's permission policy. ChatGPT without file access does not need a file scope.
 
-## 3. Route every decision through ask_user
+## Answer surfaces and account boundaries
 
-Pick the type by the shape of the decision:
+| Surface | What the user can do |
+| --- | --- |
+| Mobile app | Answer confirm, select and input questions. Supported confirm notifications offer approve/deny actions on the lock screen; arbitrary choices and text open the app. |
+| Mac notch | Answer personal account questions with confirm, select, input and question-set controls, including keyboard controls. Presence and delivery policy determine when the phone is also reached. |
+| Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
+| Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
-- `confirm` for yes or no.
-- `select` for 2 to 6 options that are mutually exclusive. The answer is the chosen option string.
-- `input` for a fact only the user has.
+Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx @pushary/agent-hooks@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
-**Fold decisions together.** Three sequential confirms is three interruptions. One `select` carrying the three real options is one.
-
-**Never ask what you can determine.** If the answer sits in the conversation, in the plan they already approved, or behind a tool call you can make, it is a lookup, not a decision.
-
-**Never ask the same class of question twice.** Ask once at the boundary. If you had to ask whether to contact one person, do not ask again for the second and third; ask once about contacting people.
-
-Always ask before:
-
-- Sending anything to a person or a system outside this conversation.
-- Spending money, or committing the user to a charge.
-- Publishing, deleting, or overwriting anything.
-- Anything the user cannot undo themselves in one step.
-- Anything they have told you to check with them about.
-
-## Asking when the user is right there
-
-Ask through `ask_user` even when the user is reading along. State the question in your reply too, so someone watching the conversation sees it, then make the call.
-
-Routing it through the tool is what puts the decision on the record and lets them answer from the phone if they walk away mid-task. A decision made only inline is a decision nobody can look up later.
-
-## 4. Waiting, and when to stop waiting
-
-`ask_user` blocks for at most 55 seconds, but the question stays answerable for 10 minutes. Read the response rather than assuming:
-
-- `answered: true`: `value` holds the answer. Act on it.
-- `answered: false` with `timedOut: true`: call `wait_for_answer` once with the same `correlationId` and `timeoutMs: 55000`.
-- `noDevices: true`: nothing is connected, so waiting is pointless. Follow `handoffAction` immediately and ask in the current client.
-
-Every response carries `answerUrl`, the page where the question is waiting. Print it whenever you tell the user you are waiting, so they can answer in a browser instead of hunting for the notification.
-
-After one empty poll, follow `handoffAction` when present, otherwise `nextAction`. For a live question, cancel it before asking in the current chat. If cancellation returns `handoffAction: "stop"`, stop. Otherwise, if cancellation returns false, poll once for 1 second and honor the answer that won the race. A timeout is not consent.
-
-## 5. Retract what you no longer need
-
-If you work the answer out yourself, or the task moves past the question, call `cancel_question` with the `correlationId`.
-
-A stale approval arriving twenty minutes later is worse than no approval, because it reads as consent to work that has already changed.
-
-## 6. Always finish with send_notification
-
-Every run ends with a notification. Not most runs.
-
-Set `context.type`:
-
-- `task_complete` when the work finished.
-- `error` when it did not. Delivered at high urgency.
-- `info` for a checkpoint the user asked to be told about.
-
-Fill the context in. A push that only says "Done" is barely better than none, because the user still has to open the conversation to learn anything.
-
-- `summary`: what happened, one or two lines.
-- `details`: the specific results, as bullets.
-- `filesChanged`: anything you created or modified.
-- `nextSteps`: what they should do now, if anything.
-- `errorMessage` and `errorFile` when the type is `error`.
-
-If the outcome raises a follow-up question, put it in `context.askQuestion` instead of sending a second notification. The response carries a `linkedCorrelationId` you can poll with `wait_for_answer`.
-
-## Naming yourself
-
-Pass `agentName` as `"{host} - {short task name}"` on every call, where host is the product you are actually running in: `"ChatGPT - invoice audit"`, `"Codex - api refactor"`. The notification then says which piece of work is asking rather than just "your AI agent".
-
-**Never name a host you are not.** The name is what the activity feed, the fleet board and the weekly digest group by, so a Claude Code session that calls itself ChatGPT is filed under ChatGPT and the user's own records stop being true.
-
-Pass a stable `sessionId` for the whole conversation. Parallel work is then attributed separately instead of collapsing into one session.
-
-## In Codex
-
-The same plugin loads in Codex, which can read and write files. There, ratify the plan with `propose_scope` rather than `ask_user`: pass `allowedPaths`, `offLimitsPaths`, `doneWhen`, and a `sessionId`. Approving once means editing inside those globs stops being a question, and only going outside them becomes one. Shell commands are not scoped by it.
-
-Do not call `propose_scope` in ChatGPT. With no paths it tells the user "this agent is asking to touch anything", which is not true here, and it will read as a far bigger request than the one you are making.
-
-## Tools
-
-| Tool | Use it for |
-|------|-----------|
-| `ask_user` | Every decision. Blocks up to 55s and returns `value`. |
-| `wait_for_answer` | Keep waiting on a `correlationId` that timed out. |
-| `cancel_question` | Retract a question you no longer need answered. |
-| `send_notification` | The final report, and any checkpoint the user asked for. |
-| `propose_scope` | Codex only. Ratify a file scope once at the start. |
+Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.

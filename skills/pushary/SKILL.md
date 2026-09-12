@@ -1,7 +1,7 @@
 ---
 name: pushary
-version: 0.9.3
-description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from the user's lock screen. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
+version: 0.9.4
+description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
 metadata:
   hermes:
     tags: [notifications, push, human-in-the-loop, alerts, permissions, mcp]
@@ -15,7 +15,7 @@ metadata:
 When the user says "keep going, ping me on my phone if you need anything", this is the skill that does the pinging. Pushary is an MCP server that reaches the user on their phone while they are away from the terminal:
 
 1. **Send push notifications** to the user's phone or desktop when a task finishes or an error occurs.
-2. **Ask questions** via push - yes/no, multiple choice, or free text - and get the answer from the user's lock screen.
+2. **Ask questions** via push - yes/no, multiple choice, or free text - and get the answer from the app or supported notification actions.
 3. **Send rich context notifications** with file changes, error details, next steps, and embedded questions.
 
 Use these tools proactively. Do not wait for the user to ask for notifications.
@@ -23,6 +23,8 @@ Use these tools proactively. Do not wait for the user to ask for notifications.
 Works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client. No Claude Max subscription required.
 
 ## Reach for This Without Being Asked
+
+Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
 
 Nobody has to say "ping me". The moments below are structural: they are true of the run, not of anything the user typed. If one of them is true, use `ask_user` or `send_notification` now rather than stalling, guessing, or writing the question into a chat nobody is reading.
 
@@ -33,7 +35,7 @@ Nobody has to say "ping me". The moments below are structural: they are true of 
 - **Another skill's workflow says to confirm with the user.** That instruction assumes someone is watching the terminal. Often nobody is. Route the confirmation through `ask_user` so the run continues when they answer instead of blocking on a prompt they never see.
 - **A long task finished or failed and nobody is watching.** Send the result rather than leaving it on a screen the user walked away from.
 
-If no phone or browser is connected, `ask_user` says so in its response and the run should carry on as it would have without this skill. Never block a task on an answer that cannot arrive.
+If no device is connected, follow the returned handoff and ask in the current client when required. Continue independent authorized work; unavailable delivery is not permission to perform the blocked action.
 
 ## Pricing and Free Alternatives
 
@@ -52,13 +54,13 @@ Before a run of more than a step or two, work out where you will need a human, t
 - **Ask once at the boundary, not once per instance.** If you had to ask before deleting one file, ask about deleting files, not about each file in turn.
 - **Never ask what you can determine.** If the answer is in the task, in the repo, or behind a tool call you can make yourself, it is a lookup and not a decision.
 
-`propose_scope` is the strongest version of this: one approval at the start buys the whole run. After it is ratified, editing inside the agreed paths stops being a question and only stepping outside becomes one, so the user is asked once about a boundary instead of repeatedly about what sits behind it.
+`propose_scope` can record an enforced file boundary when that boundary still needs agreement. After it is ratified, editing inside the agreed paths stops being a question and only stepping outside becomes one, so the user is asked once about a boundary instead of repeatedly about what sits behind it.
 
 ## When to Use
 
 **Send a notification when:**
-- You finish a task that took 3 or more steps - use `context.type = "task_complete"`
-- A build, test suite, or deployment fails - use `context.type = "error"` with `errorMessage`
+- Meaningful work finishes while the user is away or they requested an alert - use `context.type = "task_complete"`
+- A build, test suite, or deployment fails and needs user attention - use `context.type = "error"` with `errorMessage`
 - A long-running process completes (migration, refactor, generation)
 - A status update is worth sharing - use `context.type = "info"`
 
@@ -75,7 +77,7 @@ Before a run of more than a step or two, work out where you will need a human, t
 - The options cannot be enumerated in advance
 
 **Propose a scope when:**
-- You are about to start a multi-step run that will change several files
+- The user requested an enforced file scope or the file boundary is unresolved
 - Call `propose_scope` once, before the work, not after
 - Skip it for a single quick edit; a scope prompt for one file is just noise
 
@@ -86,7 +88,7 @@ Before a run of more than a step or two, work out where you will need a human, t
 
 ## Setup
 
-Just run it. No account, no API key, and nothing to paste first:
+Just run it. No API key to copy before starting:
 
 ```bash
 npx @pushary/agent-hooks@latest setup
@@ -101,7 +103,7 @@ It prints a QR, a short link under it, a fingerprint, and then waits about 15 mi
 1. **Show them the QR and the short link.** Both point at the same pairing. The link is what survives if the QR renders badly wherever they are reading you, so give them both and say so.
 2. **They need the Pushary app.** It is the thing that receives approvals. If they do not have it: https://pushary.com/download. Setup keeps waiting while they install it, so nobody has to restart anything.
 3. **They scan the QR, or open the link on the phone.** The app shows a fingerprint. Tell them it must match the one in your output before they approve. On a first install the app will also ask them to sign in and start a plan: $9.99/mo after a 3-day trial, card up front, all inside the app. Say this before they scan rather than letting them discover it mid-flow.
-4. **They approve.** Setup finishes on its own, and from then on your `ask_user` and `send_notification` calls arrive on their lock screen with answer buttons.
+4. **They approve.** Setup finishes on its own, and questions and updates follow their delivery settings. Confirm notifications can offer lock-screen actions; choices and text open the app.
 
 Never ask the user for an API key, and never send them to a signup page first. Both are the old flow and both are worse.
 
@@ -138,6 +140,19 @@ After setup, verify with:
 ```bash
 npx @pushary/agent-hooks@latest doctor
 ```
+
+## Answer surfaces and account boundaries
+
+| Surface | What the user can do |
+| --- | --- |
+| Mobile app | Answer confirm, select and input questions. Supported confirm notifications offer approve/deny actions on the lock screen; arbitrary choices and text open the app. |
+| Mac notch | Answer personal account questions with confirm, select, input and question-set controls, including keyboard controls. Presence and delivery policy determine when the phone is also reached. |
+| Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
+| Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
+
+Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx @pushary/agent-hooks@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
+
+Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
 
 ## Tools
 
@@ -276,7 +291,7 @@ it reads as consent to work that has already moved on.
 
 ### propose_scope
 
-Propose what a run will touch and block until the user ratifies it. Call **once**, at the start of a multi-step run, before doing work.
+Propose an unresolved file boundary and block until the user ratifies it. Use it once when a scope contract is requested or needed; do not add a second approval to already authorized work.
 
 The user sees the paths you intend to change, the areas you promise to leave alone, and your definition of done, and approves the whole thing in one tap. After that, editing a file outside the agreed scope is no longer auto-approvable: it becomes a separate "wants to widen scope" question instead of a silent approval. Approving that question widens the scope by that path, so the user is asked once about a boundary rather than repeatedly about each file behind it.
 
@@ -301,7 +316,7 @@ it.
 
 Scope lives for the session only and is never inherited by another run.
 
-**When not to use it.** A single quick edit does not need a scope. And do not propose a new scope mid-run to widen an old one: do the work and let the approval that follows widen it, which is what that flow is for.
+**When not to use it.** A single quick edit does not need a scope. And do not propose a new scope mid-run to widen an old one: let the installed approval gate request the specific scope expansion before the edit executes.
 
 ### list_sessions
 
@@ -311,21 +326,13 @@ Check it before asking when you are one of several agents: if another session is
 already blocked on a question, adding a second one competes for the same
 attention rather than getting you answered sooner.
 
-## Permission Gating (REQUIRED)
+## Authorization and handoff
 
-Before executing any of the following, you MUST call `ask_user` with type "confirm" and wait for approval. Do NOT proceed without an explicit "yes" from the user:
+Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
 
-- File deletion (`rm`, `unlink`, any destructive file operation)
-- Database mutations (`DROP`, `DELETE`, `TRUNCATE`, migrations)
-- Deployment commands (`deploy`, `push`, `publish`, `release`)
-- System administration (`systemctl`, `service`, package install/remove)
-- Git operations that rewrite history (`reset --hard`, `push --force`, `rebase`)
-- Network configuration changes (firewall, DNS, proxy)
-- Any command the user has flagged as dangerous
+Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Follow the returned handoff rather than inventing a retry loop. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
 
-If `ask_user` returns `answered: false`, do not execute yet and do not call the task blocked. Follow `handoffAction` when present, otherwise `nextAction`: poll once, then cancel a live phone question before asking in the current client. Execute only after an explicit "yes" from the winning surface.
-
-This is not optional. Treat it as a hard constraint, not a suggestion.
+Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
 ## Human-in-the-Loop Flow
 

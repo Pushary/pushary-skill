@@ -64,214 +64,84 @@ Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your 
 
 ---
 
-## Setup: Claude Code
+## Personal setup: phone first
 
-### Option 0: Claude Code plugin (one command)
+Run the pairing setup in your agent's terminal:
 
-This repo is a Claude Code plugin. Install it and you get the MCP tools, the permission hooks, and the skill in one step:
+```bash
+npx @pushary/agent-hooks@latest setup
+```
+
+Install [Pushary on your phone](https://pushary.com/download), scan the QR or open the printed link, compare the fingerprints, and approve. Setup then configures the selected agent's tools, supported hooks and skill. You do not need to copy an API key first. Personal accounts require a plan; the current offer is $9.99/mo after a 3-day card-first trial. Existing credentials are reused.
+
+Verify setup:
+
+```bash
+npx @pushary/agent-hooks@latest doctor
+```
+
+Ask your agent for one harmless test question. Confirm the intended device receives it and the answer returns to the same task.
+
+For Hermes specifically:
+
+```bash
+npx @pushary/agent-hooks@latest setup --agents hermes
+```
+
+This installs the native plugin in Hermes' interpreter and configures it. The plugin provides notification, question, wait, cancel and scope tools, plus Partner enrollment and customer-question tools. Its parameters use snake_case; use the [Hermes skill](skills/hermes/SKILL.md), not MCP parameter names. The native approval transport preserves Hermes' session and standing approvals.
+
+## Mac notch and other answer surfaces
+
+Install [Pushary for Mac](https://pushary.com/download), sign in with the same personal account and connect your agents from the app. The notch provides confirm, choice, text and question-set controls with keyboard support. Keep the app running for presence and delivery; verify one harmless question there, then phone fallback while away from the Mac.
+
+| Surface | Answers |
+| --- | --- |
+| Mobile | Confirm, choice and text in the app. Supported confirm notifications expose lock-screen approve/deny; arbitrary choices and text open the app. |
+| Mac notch | Personal account questions, including keyboard answering. No Partner customer inbox is currently provided. |
+| Slack | Buttons, choice menus and text modals when the integration and recipient are configured. |
+| Browser | Decision-page fallback and browser notifications when permission is enabled. |
+
+Delivery follows your settings and presence. `push_first` uses presence, `push_only` requests push every time, `notify_only` keeps decisions in the current client, and `terminal_only` avoids push. A successful API call alone does not prove a device displayed the request.
+
+## Partner setup: your own customers
+
+Personal pairing connects you, the operator. Partner integrations enroll each of your application's customers through a scoped connection link and address decisions using your stable customer ID. Customers use the mobile enrollment flow; do not route their approvals to your personal Mac inbox or share an operator API key.
+
+Start with the [Partner integration guide](https://pushary.com/docs/agents/embed), then a [Mastra agent example](https://github.com/Pushary/pushary-mastra/tree/main/examples), [AI SDK example](https://github.com/Pushary/pushary-ai-sdk/tree/main/examples) or [LangGraph example](https://github.com/Pushary/pushary-langgraph/tree/main/examples). Tools choose confirm, choice or text. Approving an action and supplying an answer are different operations; a text answer saying “yes” is not permission to execute another tool.
+
+## Browser and manual fallbacks
+
+For browser pairing:
+
+```bash
+npx @pushary/agent-hooks@latest setup --connect browser
+```
+
+For a client that needs manual MCP configuration, obtain your key in the Pushary dashboard and configure:
+
+```json
+{
+  "mcpServers": {
+    "pushary": {
+      "url": "https://pushary.com/api/mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Keep the key private. Install the skill with `npx skills add Pushary/pushary-skill` if the client supports skills.sh. Manual MCP provides cooperative questions and notifications; enforced approvals require the supported host hooks/runtime integration.
+
+Claude Code users can alternatively install this repository as a plugin:
 
 ```
 /plugin marketplace add Pushary/pushary-skill
 /plugin install pushary
 ```
 
-Set `PUSHARY_API_KEY` in your environment (get a key at [pushary.com](https://pushary.com), $9.99/mo after a 3-day trial). Claude Code expands `${PUSHARY_API_KEY}` in the plugin's MCP config.
-
-Pick one install path. If you already ran `npx @pushary/agent-hooks setup`, the same hooks live in your `~/.claude/settings.json`; installing the plugin on top runs each hook twice. Either uninstall the plugin or run `npx @pushary/agent-hooks clean` before switching.
-
-### Option A: MCP Server (notifications + questions)
-
-The agent calls Pushary tools when it wants to notify you or ask a question.
-
-**1. Sign up** at [pushary.com/sign-up](https://pushary.com/sign-up?from=ai-coding) and get your API key.
-
-**2. Install the skill:**
-
-```bash
-npx skills add Pushary/pushary-skill
-```
-
-**3. Add the MCP server** to your Claude Code settings (`~/.claude/settings.json` or project `.claude/settings.json`):
-
-```json
-{
-  "mcpServers": {
-    "pushary": {
-      "url": "https://pushary.com/api/mcp/mcp",
-      "headers": {
-        "Authorization": "Bearer pk_xxx.sk_xxx"
-      }
-    }
-  }
-}
-```
-
-Replace `pk_xxx.sk_xxx` with your API key.
-
-**4. Enable notifications** on your phone by visiting your Pushary dashboard and allowing browser notifications.
-
-That's it. The agent will proactively send you notifications when tasks complete, errors occur, or decisions are needed.
-
-### Option B: Permission Hooks (approve/deny tools via push)
-
-Route Claude Code's built-in permission prompts through push notifications. When the agent wants to run a command or edit a file, you get a push notification to approve or deny from your phone.
-
-**1. Install the hook package:**
-
-```bash
-npm install -g @pushary/agent-hooks
-```
-
-**2. Set your API key** in your shell profile (`~/.zshrc` or `~/.bashrc`):
-
-```bash
-export PUSHARY_API_KEY="pk_xxx.sk_xxx"
-```
-
-**3. Add the hook** to your Claude Code settings (`~/.claude/settings.json`):
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "pushary-hook",
-            "timeout": 120
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**4. Configure timeout policies** in your [Pushary dashboard](https://pushary.com/dashboard/agent/policies):
-
-| Tool | Timeout | If no response |
-|------|---------|----------------|
-| Bash | 60s | Auto-deny |
-| Write | 60s | Ask in terminal |
-| Edit | 45s | Ask in terminal |
-| Read | 0s | Auto-approve |
-
-When you don't respond to a push notification in time, the configured fallback kicks in: auto-approve, auto-deny, or fall back to the normal terminal permission prompt.
-
-### Option C: Both (recommended)
-
-Use Option A and Option B together. The MCP server handles notifications and voluntary questions. The permission hook handles tool approvals. They use the same API key and dashboard.
-
----
-
-## Setup: Hermes Agent
-
-### Option A: Native Plugin (recommended)
-
-Full integration with native Hermes tools and automatic error notifications.
-
-**1. Install the plugin:**
-
-```bash
-pip install hermes-plugin-pushary
-```
-
-**2. Enable it:**
-
-```bash
-hermes plugins enable pushary
-```
-
-**3. Set your API key:**
-
-```bash
-export PUSHARY_API_KEY="pk_xxx.sk_xxx"
-```
-
-**4. (Optional) Set your agent name:**
-
-```bash
-export PUSHARY_AGENT_NAME="Hermes - my-project"
-```
-
-The plugin registers 4 native tools (`pushary_notify`, `pushary_ask`, `pushary_wait`, `pushary_cancel`) and automatically sends push notifications when tools return errors.
-
-Set `PUSHARY_AUTO_NOTIFY_SESSION_END=1` to also get notified when a Hermes session ends.
-
-### Option B: MCP Server + Skill
-
-If you prefer MCP over the native plugin:
-
-**1. Add to `~/.hermes/config.yaml`:**
-
-```yaml
-mcp:
-  servers:
-    pushary:
-      url: https://pushary.com/api/mcp/sse
-      headers:
-        Authorization: "Bearer ${PUSHARY_API_KEY}"
-```
-
-**2. Install the skill:**
-
-```bash
-hermes skills tap add Pushary/pushary-skill
-hermes skills install pushary-hermes
-```
-
----
-
-## Setup: OpenAI Codex
-
-Codex has native MCP support. One command:
-
-**1. Set your API key** in your shell profile (`~/.zshrc` or `~/.bashrc`):
-
-```bash
-export PUSHARY_API_KEY="pk_xxx.sk_xxx"
-```
-
-**2. Add the MCP server:**
-
-```bash
-codex mcp add pushary --url https://pushary.com/api/mcp/mcp --bearer-token-env-var PUSHARY_API_KEY
-```
-
-That's it. Codex now has access to all Pushary tools - notifications, questions, and rich context.
-
-**Or use the setup wizard** (configures everything including the API key):
-
-```bash
-npx @pushary/agent-hooks setup
-```
-
----
-
-## Setup: Cursor / Windsurf / Other MCP Agents
-
-**1. Add the MCP server** to your agent's MCP config (usually `.cursor/mcp.json` or similar):
-
-```json
-{
-  "mcpServers": {
-    "pushary": {
-      "url": "https://pushary.com/api/mcp/mcp",
-      "headers": {
-        "Authorization": "Bearer pk_xxx.sk_xxx"
-      }
-    }
-  }
-}
-```
-
-**2. Install the skill** (if your agent supports skills.sh):
-
-```bash
-npx skills add Pushary/pushary-skill
-```
+That path reads `PUSHARY_API_KEY` from the environment. Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx @pushary/agent-hooks@latest clean` before switching paths.
 
 ---
 
@@ -293,7 +163,7 @@ Lovable gets notifications and questions only (no enforced gate, since it has no
 
 **1. Connect the MCP server.** Get your connector link from the [Pushary dashboard](https://pushary.com/dashboard/agent/settings) (**Settings -> Connections**, Claude section). In Claude, open **Settings -> Connectors -> Add custom connector**, leave the OAuth fields empty, and paste the link. Connectors are account level, so the same connector is available inside Cowork; enable it in a session under **Customize -> Connectors**.
 
-**2. Add the skill.** Zip the [`skills/pushary-cowork`](skills/pushary-cowork) folder and upload it in Cowork under **Customize -> Skills** (skills need code execution enabled). Alternatively, paste the standing instructions block from your Pushary dashboard into Claude **Settings -> Cowork**, so every session pings you on completion and asks before risky steps without you prompting each time.
+**2. Add the skill.** Zip the [`skills/pushary-cowork`](skills/pushary-cowork) folder and upload it in Cowork under **Customize -> Skills** (skills need code execution enabled). Alternatively, paste the standing instructions block from your Pushary dashboard into Claude **Settings -> Cowork**, so sessions ask for unresolved decisions and report meaningful unattended results while respecting authorization already given.
 
 Cowork gets notifications and questions only (no enforced gate; Cowork exposes no hooks). Full walkthrough: [Claude Cowork guide](https://pushary.com/docs/agents/guides/claude-desktop). Dedicated plugin repo: [Pushary/cowork-plugin](https://github.com/Pushary/cowork-plugin).
 
@@ -301,7 +171,7 @@ Cowork gets notifications and questions only (no enforced gate; Cowork exposes n
 
 ## Tools
 
-The skill exposes 5 MCP tools:
+The skill guides these MCP tools:
 
 | Tool | Description |
 |------|-------------|
@@ -310,6 +180,7 @@ The skill exposes 5 MCP tools:
 | `wait_for_answer` | Long-poll for the user's response to a question |
 | `cancel_question` | Cancel a pending question that's no longer relevant |
 | `list_sessions` | Read-only view of your live agent sessions and pending questions |
+| `propose_scope` | Ratify an unresolved or requested file boundary on supported hosts |
 
 Full tool documentation with parameters, examples, and usage guidelines is in [`skills/pushary/SKILL.md`](skills/pushary/SKILL.md).
 
@@ -332,7 +203,7 @@ Supports three question types:
 - **Select** - pick from 2-6 options
 - **Input** - free text response
 
-The flow uses `ask_user` -> `wait_for_answer` with automatic retries. Answers persist for 10 minutes, so there's no rush.
+Read `answered`, `status` and `handoffAction` (or `nextAction`) from the tool result. Poll only as directed; cancel a live question before handing it to another surface and honor any winning answer. Expiry and waits follow server policy. Silence is not approval, and a late reply cannot restart an ended agent turn.
 
 ## Packages
 
@@ -358,9 +229,9 @@ Works with any agent that supports [skills.sh](https://skills.sh/) or the Model 
 
 `server.json` is not published by merging it. The [MCP registry](https://registry.modelcontextprotocol.io) serves one record per version, so an edit here reaches nobody until the new version is pushed to the registry, and the old text keeps being what every agent reads.
 
-Everyday path: bump `version` in `server.json` and merge to `main`. The `Release MCP registry entry` workflow picks it up.
+Everyday path: bump `version` in `server.json`, merge to `main`, then sync the public skill mirror. Its release workflow publishes the new registry entry.
 
-That workflow needs a credential it does not have yet. The registry grants publish rights as `io.github.<repository_owner>/*`, taken from the GitHub OIDC token's `repository_owner` claim. Our server is `io.github.Pushary/pushary` and the monorepo is owned by `aadilghani1`, so tokenless OIDC from the monorepo cannot reach the namespace. Until one of the two fixes in that workflow's header is applied, the run stops with an explicit error rather than passing quietly.
+The release workflow publishes from the public Pushary repository so GitHub OIDC can prove ownership of the `io.github.Pushary/pushary` namespace. Verify the workflow and registry result after release.
 
 Manual fallback, from this directory:
 

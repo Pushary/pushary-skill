@@ -12,7 +12,7 @@
       "name": "pushary",
       "source": "./",
       "displayName": "Pushary",
-      "description": "Reach a human from a running agent. Push a question to their phone before an irreversible action, get the answer back on the lock screen, and gate risky tool calls on a real approval.",
+      "description": "Reach a human from a running agent. Push a question to their phone before an irreversible action, get the answer back from their connected device, and gate risky tool calls on a real approval.",
       "author": { "name": "Pushary", "email": "business@pushary.com" },
       "homepage": "https://pushary.com",
       "repository": "https://github.com/Pushary/pushary-skill",
