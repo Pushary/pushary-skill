@@ -2,21 +2,185 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash|Write|Edit",
-        "hooks": [{ "type": "command", "command": "npx -y -p @pushary/agent-hooks@latest pushary-hook", "timeout": 120 }]
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit|PowerShell|Monitor|AskUserQuestion|ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-hook",
+            "timeout": 600
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Bash|Write|Edit",
-        "hooks": [{ "type": "command", "command": "npx -y -p @pushary/agent-hooks@latest pushary-post-hook", "timeout": 10 }]
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit|PowerShell|Monitor|TodoWrite|Task|WebFetch|WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-post-hook",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "Stop": [
-      { "hooks": [{ "type": "command", "command": "npx -y -p @pushary/agent-hooks@latest pushary-stop-hook", "timeout": 10 }] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-stop-hook",
+            "timeout": 10
+          }
+        ]
+      }
     ],
     "UserPromptSubmit": [
-      { "hooks": [{ "type": "command", "command": "npx -y -p @pushary/agent-hooks@latest pushary-prompt-hook", "timeout": 10 }] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-prompt-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt|agent_needs_input|worker_permission_prompt|elicitation_dialog|elicitation_url_dialog|agent_completed|quota_auto_resume_fired|quota_auto_resume_stale|quota_auto_resume_disabled",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-notification-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-session-start-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-session-end-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-stopfailure-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-permission-hook",
+            "timeout": 600
+          }
+        ]
+      }
+    ],
+    "PermissionDenied": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-permission-denied-hook",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-session-start-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-stop-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-post-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-post-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-notification-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Elicitation": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-elicitation-hook",
+            "timeout": 600
+          }
+        ]
+      }
     ]
   }
 }

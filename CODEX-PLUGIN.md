@@ -24,11 +24,11 @@ and a case that should *not* activate it. This is the loop to iterate the skills
 
 ## What is deliberately not here
 
-**Hooks.** `.claude-plugin/plugin.json` points at `hooks/hooks.json`; this manifest does
-not. Those hooks are Claude Code's shapes (`PreToolUse` JSON on stdin, `pushary-hook` and
-friends), and OpenAI's guidance is explicit that hooks must not be required for the core
-ChatGPT workflow. Shipping them here would at best do nothing and at worst break an install.
-Codex enforcement stays with the CLI, which is the stronger integration anyway.
+**Hooks.** Codex explicitly declares `hooks: []` to disable discovery of
+`hooks/hooks.json`, which is the Claude Code plugin's generated configuration.
+Native Codex hooks are installed by `pushary setup`. Omitting the field would
+cause Codex to discover the Claude configuration after hook trust is granted.
+See [OpenAI's bundled hook rules](https://developers.openai.com/plugins/build/plugins).
 
 **`.app.json`.** For a hosted plugin, OpenAI wants the MCP server registered through the
 portal and referenced by id, not the keyed HTTP config in `.mcp.json`. That id does not

@@ -17,6 +17,7 @@
     "approvals",
     "mcp"
   ],
+  "hooks": [],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
