@@ -165,7 +165,7 @@ Lovable gets notifications and questions only (no enforced gate, since it has no
 
 **2. Add the skill.** Zip the [`skills/pushary-cowork`](skills/pushary-cowork) folder and upload it in Cowork under **Customize -> Skills** (skills need code execution enabled). Alternatively, paste the standing instructions block from your Pushary dashboard into Claude **Settings -> Cowork**, so sessions ask for unresolved decisions and report meaningful unattended results while respecting authorization already given.
 
-Cowork gets notifications and questions only (no enforced gate; Cowork exposes no hooks). Full walkthrough: [Claude Cowork guide](https://pushary.com/docs/agents/guides/claude-desktop). Dedicated plugin repo: [Pushary/cowork-plugin](https://github.com/Pushary/cowork-plugin).
+Cowork gets notifications and questions only (no enforced gate; this connector does not install native permission hooks). Full walkthrough: [Claude Cowork guide](https://pushary.com/docs/agents/guides/claude-desktop). Dedicated plugin repo: [Pushary/cowork-plugin](https://github.com/Pushary/cowork-plugin).
 
 ---
 

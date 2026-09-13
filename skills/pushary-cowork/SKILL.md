@@ -1,7 +1,7 @@
 ---
 name: pushary-cowork
-version: 0.4.1
-description: Phone notifications and human-in-the-loop for Claude Cowork through the Pushary connector. Use inside a Cowork session whenever you need a human and nobody is watching the session, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a task finishes or fails with nobody watching. Also use it when the user says things like ping me on my phone when this is done, ask me before doing anything risky, keep me in the loop while I am away, or notify me if you get stuck. Sends completion alerts, asks questions (yes/no, multiple choice, or free text) via push, and gets answers from connected devices. Cooperative only, Cowork has no hooks. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
+version: 0.4.2
+description: Phone notifications and human-in-the-loop for Claude Cowork through the Pushary connector. Use inside a Cowork session whenever you need a human and nobody is watching the session, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a task finishes or fails with nobody watching. Also use it when the user says things like ping me on my phone when this is done, ask me before doing anything risky, keep me in the loop while I am away, or notify me if you get stuck. Sends completion alerts, asks questions (yes/no, multiple choice, or free text) via push, and gets answers from connected devices. This Pushary connector is cooperative; it does not install native Cowork permission hooks. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop, cowork, claude, alerts, approvals
 ---
@@ -20,7 +20,7 @@ Every question costs the user their attention wherever they are. Before a run of
 
 - **You need a decision or a clarifying answer.** Call `ask_user` instead of guessing or stalling. Use type `confirm` for yes or no, `select` for a fixed set of options, and `input` for free text.
 - **An action outside your existing authorization is risky or irreversible.** Deleting or overwriting files, spending money, sending anything external, bulk changes: call `ask_user` with type `confirm` first and wait for approval.
-- **Meaningful work finishes while the user is away, or they requested an alert.** Call `send_notification` with a short summary of what changed, and pass `context.type` as `task_complete`. That is what marks it a task update, and the user's setting for where task updates land can only route one that says so. If the user is likely to reply to what you hand back, keep a reply channel open as well, see below.
+- **Meaningful work finishes while the user is away, or they requested an alert.** Call `send_notification` with a short summary of what changed, and pass `context.type` as `task_complete`. That is what marks it a task update, and the user's setting for where task updates land can only route one that says so. Keep a reply channel open only for a specific unresolved decision needed to finish, as described below.
 - **You are blocked or hit an error you cannot resolve.** Call `send_notification` with `context.type` as `error` so the user knows, and `ask_user` if you need a decision to continue.
 - **Another skill's workflow says to confirm with the user.** That instruction assumes someone is watching the session. Often nobody is. Route the confirmation through `ask_user` so the run continues when they answer, instead of stalling on a prompt they never see.
 
@@ -43,7 +43,7 @@ Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on 
 Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
 - If `ask_user` times out, call `wait_for_answer` once with the same question id. If it is still pending, cancel it before asking in the current client. If cancellation returns `handoffAction: "stop"`, stop. Otherwise, if cancellation returns false, poll once for 1 second and honor the answer that won the race.
-- On long tasks where the user might be away, prefer `send_notification` with `context.askQuestion` over a blocking `ask_user`. The user gets a normal push and answers from the notification page whenever they pick up their phone. Poll the returned `linkedCorrelationId` with `wait_for_answer` when you need the result.
+- On long tasks where the user might be away, prefer `send_notification` with `context.askQuestion` over a blocking `ask_user`. The user can answer from the notification page while the question remains live. Poll the returned `linkedCorrelationId` once when you need the result, then follow the returned handoff; do not promise an overnight wait or a reply after the turn ends.
 - Use `cancel_question` to retract a question that is no longer needed.
 
 ## Answer surfaces and account boundaries
@@ -55,15 +55,22 @@ Delivery is controlled by the user's policy: `push_first` uses presence, `push_o
 | Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
-Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx @pushary/agent-hooks@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
+Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx @pushary/agent-hooks@latest cowork` for connector setup, then ask one harmless test question inside Cowork, answer it from Pushary, and verify Cowork receives the answer. CLI doctor checks do not verify a hosted connector. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
 Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
 
 ## Conventions
 
+- Reuse one opaque `sessionId` per Cowork task. Do not reuse it across parallel tasks or put credentials in it.
 - Pass `agentName` as `Claude Cowork - <task name>` on every call, so the user knows which session is asking and their dashboard groups the session correctly.
 - Keep questions short and decision-shaped. One sentence of context, then the ask. The user is reading a lock screen, not a report.
 - Do not ask through Pushary for things you can safely decide yourself. Reserve it for real decisions, risky steps, completions, and errors, so a ping always means something.
+
+## Setup and capability boundary
+
+Install the Pushary Cowork plugin to supply this skill and its remote MCP connector, or add `https://pushary.com/api/mcp/mcp` under Customize > Connectors. Sign in with the same Pushary account used by your phone and Mac. Enable the connector in the task and approve its tool access when Claude asks. For proactive behavior, use this skill or standing instructions under Settings > Cowork; do not rely on a repository memory file.
+
+Anthropic documents plugin hooks in supported Cowork versions. This plugin currently uses the cooperative connector and does not install or verify native permission hooks. Local and cloud Cowork tasks may have different capabilities; do not infer them from the product name. Native Claude permission prompts still need Claude’s own approval surface.
 
 ## If the connector is missing
 
