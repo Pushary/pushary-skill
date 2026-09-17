@@ -108,8 +108,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx -y -p @pushary/agent-hooks@latest pushary-permission-denied-hook",
-            "timeout": 60
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-permission-denied-hook --hold-budget=600",
+            "timeout": 600
           }
         ]
       }
