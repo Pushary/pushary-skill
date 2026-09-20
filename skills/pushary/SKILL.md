@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.11.0
+version: 0.11.1
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
 metadata:
   hermes:
@@ -448,7 +448,7 @@ Propose the boundary of this run and block until the user agrees to it. Call it 
 
 The user sees three things: the paths you will change, the paths you promise to leave alone, and your definition of done. The user agrees to all three in one tap.
 
-**Before you call this, look at your own tool list.** If you hold no `Edit`, `Write` or `MultiEdit`, this run changes no files, and a path contract here enforces nothing. Use shape 3 below. This one check decides everything else in this section, and it costs no tool calls.
+**Before you call this, identify the file-editing capabilities you will use.** Native names differ: Codex uses `apply_patch`, VS Code also uses patch and replacement tools, and other agents expose `Edit`, `Write` or `MultiEdit`. These can carry enforceable paths. Use shape 3 only when this run has no file boundary to enforce. Read the returned `enforces` and `hookSeen` fields to confirm what is actually checked; tool names alone do not prove enforcement.
 
 **A boundary makes a question. It never makes an approval.** After the user agrees, a rule that already asked still asks. A scope can only turn an automatic approval into a question.
 
@@ -456,7 +456,7 @@ The user sees three things: the paths you will change, the paths you promise to 
 
 The gate reads one thing from the contract: the path of a file you are about to change. It compares that path with `allowedPaths` and `offLimitsPaths`.
 
-- **Enforced.** `Edit`, `Write` and `MultiEdit`, and the same calls under other agent names. A file outside the agreed paths stops being auto-approvable and becomes a new question. Approving it widens the scope by that exact path.
+- **Enforced.** `Edit`, `Write`, `MultiEdit` and supported aliases, including Codex `apply_patch` and VS Code patch/replacement tools. A file outside the agreed paths stops being auto-approvable and becomes a new question. Approving it widens the scope by that exact path.
 - **Not enforced.** Shell commands. `Read`. Web requests. Every MCP tool. These carry no file path, so the gate has no path to judge and reads them as inside the scope. The permission policy still governs them.
 - **`doneWhen` and `promises` are not enforced.** The user reads them. No code checks them.
 
