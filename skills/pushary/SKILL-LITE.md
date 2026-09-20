@@ -43,9 +43,11 @@ Cancel a pending question: `{ "correlationId": "..." }`
 
 ## propose_scope
 
-Agree the boundary of a multi-step run up front, once: `{ "doneWhen": "tests pass", "sessionId": "...", "allowedPaths": ["src/**"], "offLimitsPaths": ["**/.env*"] }`
+Agree the boundary of a multi-step run up front, once: `{ "doneWhen": "tests pass", "sessionId": "...", "allowedPaths": ["src/**"], "offLimitsPaths": [".env*"] }`
 
-Blocks until the user answers. `ratified: true` means it is live, and after that a file outside the scope becomes a "widen scope?" question instead of a silent approval, so the user is asked once per boundary rather than once per file. Globs only; shell commands stay governed by the permission policy. Enforcement needs the Pushary hook (`@pushary/agent-hooks` 0.59.0+); without it the contract is recorded but not gated.
+Blocks until the user answers. `ratified: true` means it is live, and after that a file outside the scope becomes a "widen scope?" question instead of a silent approval, so the user is asked once per boundary rather than once per file.
+
+Only file paths are enforced, and only on tool calls that carry one (`Edit`, `Write`, `MultiEdit`). Shell commands, reads, web requests and MCP tools carry no path, so the contract says nothing about them. A boundary that is not a path (recipients, channels, spend, systems) goes in `promises`, which is shown and recorded but never checked; never put one in `allowedPaths`, where it matches no file and makes every edit ask instead. Read `enforces` in the result: an empty array means nothing here is checked automatically, and you must say so rather than report that a scope is in force. Enforcement also needs the Pushary hook; without it the contract is recorded but not gated.
 
 ## list_sessions
 
@@ -54,7 +56,7 @@ Read-only: see your live agent sessions and pending questions (no notification s
 ## Rules
 
 - `agentName` format: `"{Agent} - {project}"` (e.g., `"Cursor - api-server"`)
-- Use `propose_scope` only for an unresolved or requested file boundary, not redundant plan approval
+- Use `propose_scope` only for an unresolved or requested boundary, not redundant plan approval; a boundary that is not a file path goes in `promises`
 - Max 3 notifications per task
 - Ask for confirmation before risky actions outside existing authorization; preserve enforced host gates
 - If `answered: false`, follow `handoffAction` when present, otherwise `nextAction`; after one poll, cancel the phone question before asking in the current client

@@ -180,7 +180,7 @@ The skill guides these MCP tools:
 | `wait_for_answer` | Long-poll for the user's response to a question |
 | `cancel_question` | Cancel a pending question that's no longer relevant |
 | `list_sessions` | Read-only view of your live agent sessions and pending questions |
-| `propose_scope` | Ratify an unresolved or requested file boundary on supported hosts |
+| `propose_scope` | Ratify the boundary of a run: file globs, enforced on supported hosts, or a recorded promise when the run changes no files |
 
 Full tool documentation with parameters, examples, and usage guidelines is in [`skills/pushary/SKILL.md`](skills/pushary/SKILL.md).
 

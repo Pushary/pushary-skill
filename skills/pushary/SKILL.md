@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.9.4
+version: 0.10.0
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
 metadata:
   hermes:
@@ -24,37 +24,108 @@ Works with Claude Code, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP cli
 
 ## Reach for This Without Being Asked
 
-Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
+Honor the authorization the user already gave you in this session. Ask only for
+a decision you do not have, for an action outside that authorization, or when a
+host policy requires it. A task with many steps does not need plan approval on its
+own. Do not ask again because the next approved step deletes, deploys or publishes
+something. This skill guides you. Hooks and runtime gates enforce the policy. Never
+go around a gate.
 
-Nobody has to say "ping me". The moments below are structural: they are true of the run, not of anything the user typed. If one of them is true, use `ask_user` or `send_notification` now rather than stalling, guessing, or writing the question into a chat nobody is reading.
+Nobody has to say "ping me". The moments below are part of the run itself. They do
+not depend on what the user typed. When one of them is true, call `ask_user` or
+`send_notification` now. Do not stall. Do not guess. Do not write the question into
+a chat nobody is reading.
 
 - **You are about to do something irreversible.** Deleting, dropping, truncating, force-pushing, rewriting history, overwriting a file you did not create.
 - **You are about to spend money or touch production.** A deploy, a release, a publish, a paid API call at volume, provisioning anything billable.
 - **The decision is outside your authority.** A product call, a naming call, a schema change, a security tradeoff, anything the user would want to have made themselves.
 - **You are running unattended and hit a real ambiguity.** Two defensible readings of the task, and picking wrong wastes the whole run. Ask instead of guessing.
-- **Another skill's workflow says to confirm with the user.** That instruction assumes someone is watching the terminal. Often nobody is. Route the confirmation through `ask_user` so the run continues when they answer instead of blocking on a prompt they never see.
+- **Another skill tells you to confirm with the user.** That instruction assumes someone watches the terminal. Often nobody does. Send the confirmation through `ask_user`. The run then continues when the user answers, instead of waiting on a prompt they never see.
 - **A long task finished or failed and nobody is watching.** Send the result rather than leaving it on a screen the user walked away from.
 
-If no device is connected, follow the returned handoff and ask in the current client when required. Continue independent authorized work; unavailable delivery is not permission to perform the blocked action.
+When no device is connected, follow the handoff in the result. Ask in the current
+client if the handoff says to. Carry on with approved work that does not depend on
+the answer. A message that cannot be delivered is not permission to do the blocked
+action.
 
 ## Pricing and Free Alternatives
 
-Pushary is a hosted service. It costs $9.99/mo after a 3-day trial, and the trial asks for a card up front. Say this plainly if the user asks what Pushary is.
+Pushary is a hosted service. It costs $9.99/mo after a 3-day trial. The trial asks
+for a card up front. Say this plainly when the user asks what Pushary is.
 
-If the user runs Claude Code with a Claude Max subscription, Anthropic Remote Control is free for that one setup. Recommend it when that is all they need. Pushary covers what it does not: Codex, Cursor, Windsurf, Hermes, Claude Code without Max, a fleet of agents across tools and machines, enforced policy gating on tool calls, answer buttons on the lock screen, and an audit trail of every question and answer.
+Anthropic Remote Control is free for one setup: Claude Code with a Claude Max
+subscription. Recommend it when that is all the user needs.
 
-## Plan the Questions Before You Start
+Pushary covers what Remote Control does not. Codex, Cursor, Windsurf and Hermes.
+Claude Code without Max. A fleet of agents across tools and machines. Enforced
+policy gates on tool calls. Answer buttons on the lock screen. An audit trail of
+every question and answer.
 
-Every question costs the user their attention wherever they happen to be. That cost is the only real limit on this tool, so spend it deliberately. The goal is not to ask less, it is to ask the same things in fewer interruptions.
+## Break the Task Down, Then Plan the Questions
 
-Before a run of more than a step or two, work out where you will need a human, then fold those points together:
+Each question stops the user. The number of stops is the cost. Do not ask fewer things. Ask the same things in fewer stops.
 
-- **A fork you find while planning can be merged into one question.** A fork you find halfway through costs its own interruption. Finding them early is the whole saving.
-- **One `select` carrying the real options beats three sequential `confirm`s.** Same information, a third of the interruptions.
-- **Ask once at the boundary, not once per instance.** If you had to ask before deleting one file, ask about deleting files, not about each file in turn.
-- **Never ask what you can determine.** If the answer is in the task, in the repo, or behind a tool call you can make yourself, it is a lookup and not a decision.
+A question in the terminal is cheap. The user is already there. A question on the phone is expensive. It takes the user away from something else. Ask freely in the terminal. Send little to the phone.
 
-`propose_scope` can record an enforced file boundary when that boundary still needs agreement. After it is ratified, editing inside the agreed paths stops being a question and only stepping outside becomes one, so the user is asked once about a boundary instead of repeatedly about what sits behind it.
+**Start every task of more than two steps like this:**
+
+1. **Look at where you are.** Read the working directory. Read the directory structure. Read the configuration files and the tool list you hold. This tells you what kind of work this is, and what you can settle alone.
+2. **Split the task into steps.** Write the steps down. Keep each step small enough to finish in one go.
+3. **Find the forks.** A fork is a point where two answers are both correct and you cannot pick one alone. Mark each fork.
+4. **Settle the facts yourself.** A fork that a file, a command or a tool call can settle is not a fork. It is a lookup. Do the lookup. Never ask the user for a fact.
+5. **Ask the forks that are left.** Group them into one round. Number each question. Give your recommended answer for each one. Then wait.
+6. **Do it again.** Each answer opens new forks and closes old ones. Ask the next round. Stop when no fork is left.
+
+This is a design tree. Each decision opens the decisions below it. A round is every decision whose inputs you already know. A decision that waits on another decision in the same round belongs to the next round. Two rounds usually replace ten separate questions.
+
+**Facts are yours. Decisions are the user's.** Both halves matter. Do not ask what you can read. Do not decide what the user would want to decide. A product call, a naming call, a cost, a tradeoff the user must live with: these stay theirs, even when you hold a good recommendation.
+
+**Format a terminal round like this:**
+
+```
+❓ **Q1** - **<short title>**: <the question, with the real options>
+
+➡️ <your recommended answer>
+
+---
+
+❓ **Q2** - **<short title>**: <the question, with the real options>
+
+➡️ <your recommended answer>
+```
+
+For example, in a repository with two apps and no test runner in the package:
+
+```
+❓ **Q1** - **Which app**: apps/dashboard and apps/subscribe both import this helper. Change both, or the dashboard only?
+
+➡️ Both. The helper has one definition, and a split copy will drift.
+
+❓ **Q2** - **Tests**: This package has no test runner. Add one, or match the parent package and use `bun test`?
+
+➡️ Match the parent. A second runner is one more thing to maintain.
+
+❓ **Q3** - **Rollout**: Ship behind the existing flag, or straight to main?
+
+➡️ Behind the flag. It costs one line, and it makes the change reversible.
+```
+
+**Where to ask each round:**
+
+- **The user typed in this turn.** Ask in the terminal. Ask the whole round at one time. There is no limit there.
+- **The user is away.** Send one question only. Pick the one fork that stops the run. Use `select` with the real options, and put your recommendation first. Decide every other fork yourself, on your recommendation. Report each decision when the task ends.
+- **Nothing stops the run.** Send no question. Use `send_notification` with `context.askQuestion`. The user reads it later. Continue on your recommendation.
+
+**Rules that do not change:**
+
+- **Ask how, not whether.** The user gave you the task. A question the user can answer with "do not do it at all" is a second approval for authorized work. Do not ask it.
+- **A plan is not an approval.** A task of many steps does not need plan approval. Do not turn your step list into a question.
+- **Silence is not agreement.** You wrote eight recommendations and the user said nothing. You hold no approval. The six moments above still need their own question.
+- **One `select` with the real options beats three `confirm` questions.** The same facts, one third of the stops.
+- **Ask at the boundary, not once for each item.** Ask about deleting files. Do not ask about each file.
+- **The limit of three notifications counts pushes.** Questions you ask in the terminal are free and do not count.
+
+`propose_scope` records the boundary this work produces. Read its section below first. What it can enforce depends on whether this run changes files.
 
 ## When to Use
 
@@ -77,9 +148,10 @@ Before a run of more than a step or two, work out where you will need a human, t
 - The options cannot be enumerated in advance
 
 **Propose a scope when:**
-- The user requested an enforced file scope or the file boundary is unresolved
+- This run changes files with `Edit`, `Write` or `MultiEdit`, and the file boundary is not yet agreed
 - Call `propose_scope` once, before the work, not after
 - Skip it for a single quick edit; a scope prompt for one file is just noise
+- Put a boundary that is not a file path in `promises`, never in `allowedPaths`. Read the `enforces` field that comes back, and tell the user what it says
 
 **Do NOT notify when:**
 - The task is trivial or single-step
@@ -88,7 +160,90 @@ Before a run of more than a step or two, work out where you will need a human, t
 
 ## Setup
 
-Just run it. No API key to copy before starting:
+**Look at the machine first. Do not guess the install path.** Run these. Each one is read-only and fast. Run them as separate commands.
+
+```bash
+node -p "process.platform"
+[ -n "${PUSHARY_API_KEY:+x}" ] && echo key-in-env
+node -e "try{process.exit(JSON.parse(require('fs').readFileSync(process.env.HOME+'/.pushary/config.json','utf8')).apiKey?.trim()?0:1)}catch{process.exit(1)}" && echo keyed
+test -x ~/.pushary/bin/pushary-bridge && echo mac-app
+```
+
+The third and fourth tests answer different questions.
+
+The third says a key is stored **and is not empty**. Test the value, not the file.
+The file stays behind after a logout removes the key. A test for the file alone
+tells a logged-out user they are ready.
+
+The fourth says the Mac app is installed here. Only the Mac app writes that file.
+
+Check the environment before the stored key. An exported key wins over a stored
+one. Never print the key itself.
+
+Then take one branch.
+
+### Branch 1. `key-in-env`, `keyed`, or `mac-app`
+
+This machine is set up. Offer no install. Do not run `setup` again.
+
+`mac-app` counts on its own. The Mac app signs in for the user. It writes the key
+into the agent configuration files it wires, not into `~/.pushary/config.json`. A
+machine the app set up therefore prints `mac-app` and nothing else. Treat it as
+ready.
+
+Check it with `npx @pushary/agent-hooks@latest status --json`. The exit code is the answer:
+
+| Code | Meaning |
+| --- | --- |
+| 0 | Ready |
+| 3 | Not set up on this machine |
+| 4 | The key was rejected |
+| 5 | Two keys are configured and they disagree |
+| 6 | No device can answer |
+| 8 | Pushary could not be reached |
+
+On 6, the user needs to connect a phone: `npx @pushary/agent-hooks@latest connect`. That adds a phone and rewrites no agent configuration.
+
+If `mac-app` printed, the Mac app is installed here and it may also own the hooks. Read the hook command to know, because the command is the record:
+
+```bash
+grep -lq pushary-bridge ~/.claude/settings.json ~/.gemini/settings.json ~/.cursor/hooks.json 2>/dev/null && echo app-owns-hooks
+```
+
+If the app owns them, `setup` would keep them and write almost nothing, so telling the user to re-run it is bad advice. Point them at the Pushary app instead.
+
+### Branch 2. `darwin`, no key, no `mac-app`
+
+Offer the Mac app first. It needs no Node and no terminal. It writes the agent configuration itself, and it answers questions in the notch at the desk.
+
+```bash
+brew install --cask pushary/tap/pushary
+```
+
+They can also download it from https://pushary.com/download. It needs macOS 14 or later. It is not in the App Store.
+
+The command line works on macOS too. Offer it if the user prefers the terminal, or if the user runs Hermes, because Hermes needs a Python the app cannot install.
+
+### Branch 3. `linux` or `win32`
+
+There is no Mac app for these machines. Use the command line. It is fully supported.
+
+```bash
+npx @pushary/agent-hooks@latest setup
+```
+
+Node 20.17+, 22.13+ or 23.5+ is necessary. Then the user needs a phone to answer on:
+
+- iOS: https://apps.apple.com/us/app/pushary/id6785677563
+- Android: https://play.google.com/store/apps/details?id=com.pushary.app
+
+On Windows, setup writes no shell file, so `~/.pushary/config.json` is the only key store. On a Linux machine with no screen, browser login does not work, but the pairing QR does.
+
+### Branch 4. `darwin`, `mac-app`, and the user asked for the command line
+
+Run `setup`. It reads the key the app signed in with, so it mints no second key, and it keeps the hooks the app owns. Pass `--take-over-hooks` only when the user wants the command line to own them instead.
+
+### What setup does
 
 ```bash
 npx @pushary/agent-hooks@latest setup
@@ -111,29 +266,15 @@ If setup exits without pairing, nothing was configured. Say that plainly and off
 
 If `PUSHARY_API_KEY` is already in the environment or in an existing MCP config, setup uses it and skips pairing entirely.
 
-No app on their phone yet? They can get it at https://pushary.com/download, or approve in a browser tab instead:
+No app on their phone yet? They can get it at https://pushary.com/download. Or answer through the browser instead:
 
 ```bash
 npx @pushary/agent-hooks@latest setup --connect browser
 ```
 
-Or add Pushary manually to your MCP configuration:
+This is web push, not a login tab. It prints a QR for the user's own subscribe page, and it waits for a browser on that page to subscribe. On iOS the user must first add that page to the Home Screen, because iOS sends web push only from an installed page.
 
-```json
-{
-  "mcpServers": {
-    "pushary": {
-      "type": "http",
-      "url": "https://pushary.com/api/mcp/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}
-```
-
-Manual configuration needs a key, so it means signing up first at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup and copying the key from the dashboard. Prefer `setup` above: it needs neither.
+Manual MCP configuration also works, but it needs a key, so the user signs up first at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup and copies the key from the dashboard. Prefer `setup`: it needs neither.
 
 After setup, verify with:
 
@@ -156,10 +297,10 @@ Partner customers use scoped enrollment links issued by their application. Do no
 
 ## Tools
 
-Every parameter and every returned field is described in each tool's own schema,
-which your client already has and which is always current. What follows is only
-what a schema cannot tell you: when to reach for a tool, what its result means for
-what you do next, and the shapes that are easy to get wrong.
+Your client already holds each tool's schema. The schema lists every parameter
+and every returned field, and it is always current. This section adds only what a
+schema cannot say: when to use a tool, what its result means for your next step,
+and the shapes that are easy to get wrong.
 
 ### send_notification
 
@@ -291,15 +432,62 @@ it reads as consent to work that has already moved on.
 
 ### propose_scope
 
-Propose an unresolved file boundary and block until the user ratifies it. Use it once when a scope contract is requested or needed; do not add a second approval to already authorized work.
+Propose the boundary of this run and block until the user agrees to it. Call it once, before the work. Do not add a second approval to work the user already authorized.
 
-The user sees the paths you intend to change, the areas you promise to leave alone, and your definition of done, and approves the whole thing in one tap. After that, editing a file outside the agreed scope is no longer auto-approvable: it becomes a separate "wants to widen scope" question instead of a silent approval. Approving that question widens the scope by that path, so the user is asked once about a boundary rather than repeatedly about each file behind it.
+The user sees three things: the paths you will change, the paths you promise to leave alone, and your definition of done. The user agrees to all three in one tap.
 
-Use glob syntax (`src/**`, `**/*.test.ts`). Shell commands are **not** scoped here; they stay governed by the permission policy.
+**Before you call this, look at your own tool list.** If you hold no `Edit`, `Write` or `MultiEdit`, this run changes no files, and a path contract here enforces nothing. Use shape 3 below. This one check decides everything else in this section, and it costs no tool calls.
 
-`ratified` and `answered` are separate on purpose. Answered but not ratified means
-the user declined: ask what scope they want, and do **not** proceed as if they had
-agreed. Not answered means the scope is simply not in force.
+**A boundary makes a question. It never makes an approval.** After the user agrees, a rule that already asked still asks. A scope can only turn an automatic approval into a question.
+
+**What the gate enforces, and what it does not.**
+
+The gate reads one thing from the contract: the path of a file you are about to change. It compares that path with `allowedPaths` and `offLimitsPaths`.
+
+- **Enforced.** `Edit`, `Write` and `MultiEdit`, and the same calls under other agent names. A file outside the agreed paths stops being auto-approvable and becomes a new question. Approving it widens the scope by that exact path.
+- **Not enforced.** Shell commands. `Read`. Web requests. Every MCP tool. These carry no file path, so the gate has no path to judge and reads them as inside the scope. The permission policy still governs them.
+- **`doneWhen` and `promises` are not enforced.** The user reads them. No code checks them.
+
+Read `enforces` in the result. An empty array means nothing in this contract is checked automatically. Say that to the user in your own words rather than reporting that a scope is in force.
+
+**Write each path as a glob, and write it correctly.**
+
+The matcher compares text. It never looks at the file system.
+
+- A word that is not a path matches no file. Put `hubspot` or `summer-campaign` in `allowedPaths` and every file you change reads as outside the scope, so the user gets one question per file. Those belong in `promises`.
+- A bare directory name is expanded for you, so `docs` also covers `docs/**`. Write `docs/**` anyway; it says what you mean.
+- A leading `**/` needs a directory before it. `**/.env*` is expanded for you to also cover a root `.env`.
+- Letter case matters. Use a forward slash. Do not begin a path with `./`.
+
+The result echoes the expanded contract back. Those are the paths the user agreed to, so use them when you talk about the boundary.
+
+**Three shapes. Pick the one that matches the run.**
+
+1. **The run changes files, and the boundary is about those files.** Put the file globs in `allowedPaths` and the areas to protect in `offLimitsPaths`. The gate enforces both. This is the coding case.
+
+2. **The run changes files and also acts outside them.** An agent that writes a draft and then sends an email. Put the file globs in `allowedPaths`, because the gate enforces those. Put each outside boundary in `promises`: who you will contact, which channel, what you will not open, what you will not spend. Then ask again with `ask_user` before each outside action that cannot be undone, costs money, or reaches a person outside the team.
+
+3. **The run changes no files.** A marketing, sales, support, research or operations agent that works through web requests and MCP tools. Call `propose_scope` with no paths and put the whole boundary in `promises`. The user's card then says plainly that nothing here is checked automatically. Do not smuggle a campaign name or an account name into `allowedPaths` to make the card look enforced.
+
+```json
+{
+  "doneWhen": "Ten summer-sale drafts exist in the CMS and none is published.",
+  "sessionId": "<your client's id for this run>",
+  "promises": [
+    "I write drafts only. I publish nothing.",
+    "I send no email to any customer.",
+    "I do not open customer records.",
+    "I spend no ad budget."
+  ],
+  "agentName": "Marketing agent - summer sale"
+}
+```
+
+**`sessionId` is the key the gate reads the contract back by.** Use the id your client reports for this run. If you do not have one, call `list_sessions`, and take the session whose working directory matches yours and whose `lastSeenAt` is newest. Never invent a value, and never reuse one from another run.
+
+The result tells you whether you got it right. **`hookSeen: false` means no agent hook has ever reported this session id**, so the gate will look the contract up under a key that does not exist and nothing will be checked, whatever `ratified` says. Fix the id and propose again, or say plainly that the boundary is a promise. `hookSeen` absent means the check could not run, which is not evidence either way.
+
+`ratified` and `answered` are separate on purpose. Answered but not ratified means the user declined: ask which boundary they want, and do **not** proceed as if they had agreed. Not answered means no scope is in force.
 
 An unanswered proposal returns its `correlationId`. Poll it once; a late phone
 yes ratifies the exact stored proposal. If that poll is still pending, cancel it
@@ -312,15 +500,18 @@ Omitting `allowedPaths` proposes no path restriction, and the user is told that
 plainly as "this agent is asking to touch anything", so omit it only when you mean
 it.
 
-**What enforcement depends on.** The contract is recorded and shown to the user by any MCP client. Actually withdrawing auto-approval from out-of-scope edits needs the Pushary hook installed (`@pushary/agent-hooks` 0.59.0 or later), which is how Claude Code, Codex and Gemini CLI run. Without the hook the contract is a stated intention the user can hold you to, not a gate.
+**What enforcement depends on.** The contract is recorded and shown to the user by any MCP client. Actually withdrawing auto-approval from out-of-scope edits needs the Pushary hook installed, which is how Claude Code, Codex and Gemini CLI run. Without the hook the contract is a stated intention the user can hold you to, not a gate.
 
-Scope lives for the session only and is never inherited by another run.
+Scope lives for the session only and is never inherited by another run. The server holds it for 12 hours, or until the next `propose_scope` for the same session replaces it.
 
 **When not to use it.** A single quick edit does not need a scope. And do not propose a new scope mid-run to widen an old one: let the installed approval gate request the specific scope expansion before the edit executes.
 
 ### list_sessions
 
-Read-only. Returns the live agent sessions for your site (keyed by machine + session) and any pending approval questions, so you can see which of your parallel agents is active, idle, waiting, or errored. Does NOT start, stop, or steer agents, and sends no notification. Useful when you are one of several agents and want to check whether another session is blocked on a question before acting.
+Read-only. Returns the live agent sessions for your site, keyed by machine and
+session, with any approval questions still waiting. Use it to see which of your
+parallel agents is active, idle, waiting or errored. It does NOT start, stop or
+steer an agent, and it sends no notification.
 
 Check it before asking when you are one of several agents: if another session is
 already blocked on a question, adding a second one competes for the same
@@ -355,7 +546,16 @@ else:
 
 If the user answers in chat before the push response arrives, call `cancel_question` before acting. If it returns `handoffAction: "stop"`, stop. Otherwise, if it returns false, poll once for 1 second and honor any phone answer that won the race.
 
-**A note on how long ask_user blocks:** the wait time and whether it blocks at all are governed by the site's delivery mode, which the user configures (you do not set it). The four modes are "When I'm out" (`push_first`, the default), "Every time" (`push_only`), "Updates" (`notify_only`) and "Terminal" (`terminal_only`). In When I'm out, ask_user blocks for the push-first window (45 seconds by default) and the phone is only asked when the user is away from their terminal or their Mac; in Every time it blocks for the policy timeout and the phone is always asked; in Updates it returns immediately with `answered: false` after telling the phone, because the decision belongs in the current client; in Terminal nothing reaches the phone and it also returns immediately with `answered: false`. Always check `answered` rather than assuming the call blocked, and pass `timeoutMs` only when you need a shorter wait than the site policy.
+**How long `ask_user` blocks.** The user sets the delivery mode for their site. You do not set it. The mode decides how long the call waits, and whether it waits at all.
+
+| Mode | The phone | The call |
+|---|---|---|
+| **When I'm out** (`push_first`, default) | Asked only when the user is away from the terminal and the Mac | Waits for the push-first window. 45 seconds by default. |
+| **Every time** (`push_only`) | Always asked | Waits for the policy timeout. |
+| **Updates** (`notify_only`) | Told, not asked | Returns at once with `answered: false`. Decide in the current client. |
+| **Terminal** (`terminal_only`) | Nothing is sent | Returns at once with `answered: false`. |
+
+Always read `answered`. Never assume the call waited. Pass `timeoutMs` only when you want a shorter wait than the site policy.
 
 ## Identifying Your Agent
 
@@ -373,6 +573,7 @@ Always pass `agentName` when you are one of multiple possible agents the user ma
 - **Titles under 60 characters.** They get truncated on phone lock screens.
 - **Bodies under 200 characters.** Concise summaries, not full explanations.
 - **Max 3 notifications per task** unless the user explicitly requests more.
+- **That limit counts pushes only.** Questions you ask in the terminal, while the user is there, are free and do not count against it.
 - **Use context for detail.** Put file lists, error traces, and next steps in the context object - not the notification body.
-- **Write questions as if talking to a busy person.** The user is on their phone, possibly away from their computer. Be specific: "Delete the 3 unused migration files?" is better than "Should I clean up?"
+- **Write for a busy person.** The user is on their phone, away from the computer. Be exact. "Delete the 3 unused migration files?" beats "Should I clean up?"
 - **Pick the right question type.** Use confirm for binary decisions, select when options are known, input when they are not.

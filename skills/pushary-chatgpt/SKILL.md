@@ -34,7 +34,9 @@ Use `send_notification` for meaningful completion while the user is away, an unr
 
 ## Optional file scope in Codex
 
-Use `propose_scope` when the user requested an enforced file boundary or one remains unresolved. Pass `allowedPaths`, `offLimitsPaths`, `doneWhen` and `sessionId`. Do not re-request authorization for an already agreed task. Only `ratified: true` establishes the server contract; chat approval is not a server-ratified scope. Enforcement requires the supported Pushary hook. Shell commands remain governed by the host's permission policy. ChatGPT without file access does not need a file scope.
+Use `propose_scope` when the user requested an enforced boundary or one remains unresolved. Pass `doneWhen` and `sessionId`, plus `allowedPaths` and `offLimitsPaths` for a run that changes files, or `promises` for a boundary that is not a path (recipients, channels, spend, systems). Do not re-request authorization for an already agreed task. Only `ratified: true` establishes the server contract; chat approval is not a server-ratified scope.
+
+Only file paths are enforced, and only on tool calls that carry one; `promises` is shown to the user and recorded but never checked. Read `enforces` in the result: an empty list means nothing in the contract is checked automatically, and you must say so rather than report that a scope is in force. Enforcement also requires the supported Pushary hook. Shell commands remain governed by the host's permission policy. ChatGPT without file access has no path to gate, so its boundary belongs in `promises`.
 
 ## Answer surfaces and account boundaries
 
