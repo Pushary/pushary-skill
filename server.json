@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Pushary/pushary",
   "title": "Pushary",
-  "description": "Reach a human from a running agent. Approvals on the lock screen, plus a cross-agent audit trail.",
-  "version": "1.4.0",
+  "description": "The decision layer for AI agents. Your agent asks, a person approves or denies on their phone.",
+  "version": "1.4.1",
   "repository": {
     "url": "https://github.com/Pushary/pushary-skill",
     "source": "github"
