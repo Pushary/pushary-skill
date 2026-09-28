@@ -14,7 +14,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://skills.sh/"><img src="https://img.shields.io/badge/skills.sh-listed-brightgreen" alt="skills.sh" /></a>
-  <a href="https://www.npmjs.com/package/@pushary/agent-hooks"><img src="https://img.shields.io/npm/v/@pushary/agent-hooks" alt="npm" /></a>
+  <a href="https://www.npmjs.com/package/pushary"><img src="https://img.shields.io/npm/v/pushary" alt="npm" /></a>
   <a href="https://pypi.org/project/hermes-plugin-pushary/"><img src="https://img.shields.io/pypi/v/hermes-plugin-pushary" alt="PyPI" /></a>
   <a href="https://smithery.ai/servers/aadil/pushary"><img src="https://smithery.ai/badge/aadil/pushary" alt="Smithery" /></a>
   <a href="https://glama.ai/mcp/servers/Pushary/pushary-skill"><img src="https://glama.ai/mcp/servers/Pushary/pushary-skill/badges/score.svg" alt="Glama score" /></a>
@@ -69,7 +69,7 @@ Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your 
 Run the pairing setup in your agent's terminal:
 
 ```bash
-npx @pushary/agent-hooks@latest setup
+npx pushary@latest setup
 ```
 
 Install [Pushary on your phone](https://pushary.com/download), scan the QR or open the printed link, compare the fingerprints, and approve. Setup then configures the selected agent's tools, supported hooks and skill. You do not need to copy an API key first. Personal accounts require a plan; the current offer is $9.99/mo after a 3-day card-first trial. Existing credentials are reused.
@@ -77,7 +77,7 @@ Install [Pushary on your phone](https://pushary.com/download), scan the QR or op
 Verify setup:
 
 ```bash
-npx @pushary/agent-hooks@latest doctor
+npx pushary@latest doctor
 ```
 
 Ask your agent for one harmless test question. Confirm the intended device receives it and the answer returns to the same task.
@@ -85,7 +85,7 @@ Ask your agent for one harmless test question. Confirm the intended device recei
 For Hermes specifically:
 
 ```bash
-npx @pushary/agent-hooks@latest setup --agents hermes
+npx pushary@latest setup --agents hermes
 ```
 
 This installs the native plugin in Hermes' interpreter and configures it. The plugin provides notification, question, wait, cancel and scope tools, plus Partner enrollment and customer-question tools. Its parameters use snake_case; use the [Hermes skill](skills/hermes/SKILL.md), not MCP parameter names. The native approval transport preserves Hermes' session and standing approvals.
@@ -114,7 +114,7 @@ Start with the [Partner integration guide](https://pushary.com/docs/agents/embed
 For browser pairing:
 
 ```bash
-npx @pushary/agent-hooks@latest setup --connect browser
+npx pushary@latest setup --connect browser
 ```
 
 For a client that needs manual MCP configuration, obtain your key in the Pushary dashboard and configure:
@@ -141,7 +141,7 @@ Claude Code users can alternatively install this repository as a plugin:
 /plugin install pushary
 ```
 
-That path reads `PUSHARY_API_KEY` from the environment. Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx @pushary/agent-hooks@latest clean` before switching paths.
+That path reads `PUSHARY_API_KEY` from the environment. Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx pushary@latest clean` before switching paths.
 
 ---
 
@@ -209,7 +209,7 @@ Read `answered`, `status` and `handoffAction` (or `nextAction`) from the tool re
 
 | Package | Registry | Description |
 |---------|----------|-------------|
-| [`@pushary/agent-hooks`](https://www.npmjs.com/package/@pushary/agent-hooks) | npm | Claude Code permission hooks |
+| [`pushary`](https://www.npmjs.com/package/pushary) | npm | The Pushary CLI: setup, permission hooks and doctor. Also published as `@pushary/agent-hooks`, the same package |
 | [`hermes-plugin-pushary`](https://pypi.org/project/hermes-plugin-pushary/) | PyPI | Hermes Agent native plugin |
 
 ## Compatible Agents

@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.11.1
+version: 0.11.2
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
 metadata:
   hermes:
@@ -203,7 +203,7 @@ into the agent configuration files it wires, not into `~/.pushary/config.json`. 
 machine the app set up therefore prints `mac-app` and nothing else. Treat it as
 ready.
 
-Check it with `npx @pushary/agent-hooks@latest status --json`. The exit code is the answer:
+Check it with `npx pushary@latest status --json`. The exit code is the answer:
 
 | Code | Meaning |
 | --- | --- |
@@ -214,7 +214,7 @@ Check it with `npx @pushary/agent-hooks@latest status --json`. The exit code is 
 | 6 | No device can answer |
 | 8 | Pushary could not be reached |
 
-On 6, the user needs to connect a phone: `npx @pushary/agent-hooks@latest connect`. That adds a phone and rewrites no agent configuration.
+On 6, the user needs to connect a phone: `npx pushary@latest connect`. That adds a phone and rewrites no agent configuration.
 
 If `mac-app` printed, the Mac app is installed here and it may also own the hooks. Read the hook command to know, because the command is the record:
 
@@ -241,7 +241,7 @@ The command line works on macOS too. Offer it if the user prefers the terminal, 
 There is no Mac app for these machines. Use the command line. It is fully supported.
 
 ```bash
-npx @pushary/agent-hooks@latest setup
+npx pushary@latest setup
 ```
 
 Node 20.17+, 22.13+ or 23.5+ is necessary. Then the user needs a phone to answer on:
@@ -258,7 +258,7 @@ Run `setup`. It reads the key the app signed in with, so it mints no second key,
 ### What setup does
 
 ```bash
-npx @pushary/agent-hooks@latest setup
+npx pushary@latest setup
 ```
 
 Setup pairs first and configures MCP, hooks, permissions and the skill only once pairing succeeds. Until someone completes the steps below, nothing is written and this machine has no Pushary. Treat pairing as the task, not as a prompt to wait out.
@@ -281,7 +281,7 @@ If `PUSHARY_API_KEY` is already in the environment or in an existing MCP config,
 No app on their phone yet? They can get it at https://pushary.com/download. Or answer through the browser instead:
 
 ```bash
-npx @pushary/agent-hooks@latest setup --connect browser
+npx pushary@latest setup --connect browser
 ```
 
 This is web push, not a login tab. It prints a QR for the user's own subscribe page, and it waits for a browser on that page to subscribe. On iOS the user must first add that page to the Home Screen, because iOS sends web push only from an installed page.
@@ -291,7 +291,7 @@ Manual MCP configuration also works, but it needs a key, so the user signs up fi
 After setup, verify with:
 
 ```bash
-npx @pushary/agent-hooks@latest doctor
+npx pushary@latest doctor
 ```
 
 ## Answer surfaces and account boundaries
@@ -303,7 +303,7 @@ npx @pushary/agent-hooks@latest doctor
 | Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
-Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx @pushary/agent-hooks@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
+Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx pushary@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
 Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
 

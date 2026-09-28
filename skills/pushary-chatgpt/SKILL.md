@@ -1,6 +1,6 @@
 ---
 name: pushary-chatgpt
-version: 0.1.2
+version: 0.1.3
 description: Reach the user through Pushary when ChatGPT or Codex needs an unresolved decision or has a meaningful unattended result. Honor existing authorization, batch questions, and follow the server's delivery policy. Use for requests such as ping me when done, ask while I am away, or run this overnight.
 metadata:
   tags: planning, approvals, human-in-the-loop, notifications, push, chatgpt, codex
@@ -47,6 +47,6 @@ Only file paths are enforced, and only on tool calls that carry one; `promises` 
 | Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
-Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx @pushary/agent-hooks@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
+Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx pushary@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
 Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.

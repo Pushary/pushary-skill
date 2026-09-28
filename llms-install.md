@@ -7,7 +7,7 @@ Pushary is a hosted remote MCP server. There is nothing to clone, build, or run 
 One command, and it needs no account and no API key up front:
 
 ```bash
-npx @pushary/agent-hooks@latest setup
+npx pushary@latest setup
 ```
 
 It writes the MCP config, hooks and permissions for you, then prints a QR code.
