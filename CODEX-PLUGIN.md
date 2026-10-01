@@ -38,19 +38,12 @@ exist yet. `.mcp.json` is still correct for a Codex user running locally with
 **Screenshots.** `interface.screenshots` is omitted rather than pointed at files that are
 not in this package. The submission form collects them separately.
 
-## What has to happen before submission
+## Published ChatGPT listing
 
-1. Make the OpenAI endpoint's `WWW-Authenticate` header point to its own protected-resource
-   metadata. OAuth sign-in worked in the 2026-08-15 private registration, but discovery
-   prefilled the Claude resource. See `docs/planning/CHATGPT-PLUGIN-NON-TECHNICAL-PATH-2026-08.md` §4.2.
-2. Complete publisher identity verification and domain verification, both of which have queues
-   and neither of which depends on code.
-3. Submit the developer-mode registration of `https://pushary.com/api/mcp/openai/mcp`
-   for a public listing. Its OAuth sign-in was verified end to end on 2026-08-15;
-   the current `plugin_asdk_app_...` id is private to its developer account. See
-   `docs/planning/CHATGPT-PLUGIN-NON-TECHNICAL-PATH-2026-08.md` §4.2.
-4. After publication, set `NEXT_PUBLIC_CHATGPT_PLUGIN_ID` to the public
-   `plugins~Plugin_...` id so the one-click button appears in onboarding and settings.
+Pushary is approved and listed at
+[Pushary in ChatGPT](https://chatgpt.com/plugins/plugin_asdk_app_6abc2ebca100819198c8619e9a697ee3).
+Mobile onboarding, web onboarding and settings use `CHATGPT_PLUGIN_URL` from
+`@pushary/contracts`; no plugin ID environment variable is required.
 
 ## Keeping the two manifests honest
 
