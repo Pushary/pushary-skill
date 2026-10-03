@@ -5,7 +5,7 @@
     <br />
     <a href="https://pushary.com/ai-coding"><strong>Get started</strong></a>
     &nbsp;&middot;&nbsp;
-    <a href="https://skills.sh/">Skills directory</a>
+    <a href="https://skills.sh/Pushary/pushary-skill/pushary">Skills directory</a>
     &nbsp;&middot;&nbsp;
     <a href="https://github.com/pushary/pushary-skill/issues">Report a bug</a>
   </p>
@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
-  <a href="https://skills.sh/"><img src="https://img.shields.io/badge/skills.sh-listed-brightgreen" alt="skills.sh" /></a>
+  <a href="https://skills.sh/Pushary/pushary-skill/pushary"><img src="https://img.shields.io/badge/skills.sh-listed-brightgreen" alt="skills.sh" /></a>
   <a href="https://www.npmjs.com/package/pushary"><img src="https://img.shields.io/npm/v/pushary" alt="npm" /></a>
   <a href="https://pypi.org/project/hermes-plugin-pushary/"><img src="https://img.shields.io/pypi/v/hermes-plugin-pushary" alt="PyPI" /></a>
   <a href="https://smithery.ai/servers/aadil/pushary"><img src="https://smithery.ai/badge/aadil/pushary" alt="Smithery" /></a>
@@ -42,9 +42,9 @@ Want to help? [Public issues and patches are welcome](CONTRIBUTING.md).
 
 ---
 
-Your AI agent finishes a 20-minute refactor while you're making coffee. Without Pushary, you'd never know until you checked back. With Pushary, you get a push notification on your phone the moment it's done - or a question on your lock screen when the agent needs a decision. It's the tool behind "keep going, ping me on my phone if you need anything".
+Pushary lets your coding agent send task updates and ask you for a decision on your phone. Supported host hooks also enforce approvals before an action runs.
 
-Pushary is a hosted service: $9.99/mo after a 3-day card-first trial. It works with Claude Code, Claude Cowork, Codex, Cursor, Windsurf, Hermes, Lovable, or any MCP client, and it does not need a Claude Max subscription. If you run Claude Code with Claude Max, Anthropic Remote Control covers that one setup for free. Pushary covers what it does not: Codex, Cursor, Claude Code without Max, a cross-agent fleet, enforced policy gating, lock screen answer buttons, and an audit trail of every question and answer.
+Hosted delivery requires a paid [Pushary plan](https://pushary.com/pricing). MCP questions and notifications work with any compatible client; enforced approvals depend on the host integration.
 
 ## How It Works
 
@@ -72,7 +72,7 @@ Run the pairing setup in your agent's terminal:
 npx pushary@latest setup
 ```
 
-Install [Pushary on your phone](https://pushary.com/download), scan the QR or open the printed link, compare the fingerprints, and approve. Setup then configures the selected agent's tools, supported hooks and skill. You do not need to copy an API key first. Personal accounts require a plan; the current offer is $9.99/mo after a 3-day card-first trial. Existing credentials are reused.
+Install [Pushary on your phone](https://pushary.com/download), scan the QR or open the printed link, compare the fingerprints, and approve. Setup then configures the selected agent's tools, supported hooks and skill. You do not need to copy an API key first. Personal accounts require a [paid plan](https://pushary.com/pricing). Existing credentials are reused.
 
 Verify setup:
 
@@ -225,7 +225,7 @@ Works with any agent that supports [skills.sh](https://skills.sh/) or the Model 
 - [Windsurf](https://windsurf.com/) (MCP)
 - [Lovable](https://lovable.dev/) (MCP connector + skill via Knowledge)
 - [OpenAI Codex](https://openai.com/index/openai-codex/) (MCP)
-- And [39+ more agents](https://skills.sh/)
+- Other clients that support remote MCP servers
 
 ## Publishing the MCP registry entry
 
