@@ -1,12 +1,12 @@
 ---
 name: pushary-cowork
-version: 0.4.3
-description: Phone notifications and human-in-the-loop for Claude Cowork through the Pushary connector. Use inside a Cowork session whenever you need a human and nobody is watching the session, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a task finishes or fails with nobody watching. Also use it when the user says things like ping me on my phone when this is done, ask me before doing anything risky, keep me in the loop while I am away, or notify me if you get stuck. Sends completion alerts, asks questions (yes/no, multiple choice, or free text) via push, and gets answers from connected devices. This Pushary connector is cooperative; it does not install native Cowork permission hooks. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
+version: 0.5.0
+description: Use Pushary in Claude Chat, Cowork, or Claude Code when the user asks for phone updates, a missing decision blocks work, an action needs approval outside existing authorization, or meaningful unattended work finishes or fails. Send task updates and confirm, choice, or text questions to the user's connected devices, then read the returned answer and handoff. Requires the Pushary connector and a paid Pushary account. This skill does not install native permission hooks.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop, cowork, claude, alerts, approvals
 ---
 
-# Pushary for Claude Cowork
+# Pushary for Claude
 
 Pushary is connected as a custom connector. It reaches the user on their phone, where confirm notifications can offer lock-screen actions; choices and text open the app. Use it proactively. Do not wait for the user to ask.
 
@@ -26,7 +26,7 @@ Every question costs the user their attention wherever they are. Before a run of
 
 ## Hand back with a way to reply
 
-The connector is the only channel between this session and the user's phone, and it carries only what you ask it to. A plain completion notice is one way traffic: once your turn ends nothing here is listening, so anything the user types back on their phone has nowhere to land. Pushary also cannot start a new Cowork task on its own, so a reply that says "now do X" reaches nobody unless you asked for it before you stopped.
+The connector carries only the updates and questions you send. Once your turn ends, this connector is no longer listening for answers. It cannot start a new Chat, Cowork, or Claude Code task, so a reply that says "now do X" reaches nobody unless you asked for it before you stopped.
 
 When a specific unresolved decision is needed before you can finish, keep the channel open:
 
@@ -34,7 +34,7 @@ When a specific unresolved decision is needed before you can finish, keep the ch
 2. Poll the returned `linkedCorrelationId` once with `wait_for_answer`, then follow its handoff.
 3. Act on the answer in this same session, then hand back the same way again if more work follows.
 
-Do not create a question just to keep the turn alive or ask for optional feedback after every result. Once this turn ends, tell the user to reopen Cowork for follow-up work.
+Do not create a question just to keep the turn alive or ask for optional feedback after every result. Once this turn ends, the user must send follow-up work in Claude.
 
 ## How to wait for answers
 
@@ -55,22 +55,23 @@ Delivery is controlled by the user's policy: `push_first` uses presence, `push_o
 | Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
-Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx pushary@latest cowork` for connector setup, then ask one harmless test question inside Cowork, answer it from Pushary, and verify Cowork receives the answer. CLI doctor checks do not verify a hosted connector. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
+Personal setup connects the operator's devices. The operator installs the Pushary phone or Mac app from https://pushary.com/download and signs in with the same account as the connector. In Chat or Cowork, connect Pushary from the plugin's Connectors tab or add `https://pushary.com/api/mcp/mcp` under Customize > Connectors. In Claude Code, check the connector with `/mcp` and follow its OAuth sign-in prompt. No CLI installer or API key is needed. Ask one harmless test question in the app being tested, answer it from Pushary, and verify Claude receives the answer. CLI doctor checks do not verify a hosted connector. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
 Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
 
 ## Conventions
 
-- Reuse one opaque `sessionId` per Cowork task. Do not reuse it across parallel tasks or put credentials in it.
-- Pass `agentName` as `Claude Cowork - <task name>` on every call, so the user knows which session is asking and their dashboard groups the session correctly.
+- Reuse one opaque `sessionId` per conversation or task. Do not reuse it across parallel tasks or put credentials in it.
+- Pass `agentName` as `Claude Chat - <task name>`, `Claude Cowork - <task name>`, or `Claude Code - <task name>` to match the current app. Use it on every call so the user knows which session is asking.
 - Keep questions short and decision-shaped. One sentence of context, then the ask. The user is reading a lock screen, not a report.
+- Send only the context needed for the decision or task update. Leave passwords, API keys, file contents, and private conversation history out of Pushary tool arguments.
 - Do not ask through Pushary for things you can safely decide yourself. Reserve it for real decisions, risky steps, completions, and errors, so a ping always means something.
 
 ## Setup and capability boundary
 
-Install the Pushary Cowork plugin to supply this skill and its remote MCP connector, or add `https://pushary.com/api/mcp/mcp` under Customize > Connectors. Sign in with the same Pushary account used by your phone and Mac. Enable the connector in the task and approve its tool access when Claude asks. For proactive behavior, use this skill or standing instructions under Settings > Cowork; do not rely on a repository memory file.
+Install Pushary for Claude to supply this skill and its remote MCP connector, or connect the public URL above. Sign in with the same Pushary account used by your phone and Mac. Enable the connector in the conversation and approve its tool access when Claude asks. Use this skill for proactive behavior. Cowork also supports standing instructions under Settings > Cowork; Chat and Cowork do not rely on a repository memory file.
 
-Anthropic documents plugin hooks in supported Cowork versions. This plugin currently uses the cooperative connector and does not install or verify native permission hooks. Local and cloud Cowork tasks may have different capabilities; do not infer them from the product name. Native Claude permission prompts still need Claude’s own approval surface.
+This plugin uses the cooperative connector and installs no native permission hooks. Chat ignores hooks. Cowork and Claude Code can load hooks from other integrations, but that does not mean this bundle can enforce approvals. Native Claude permission prompts still need Claude's own approval surface unless a separately installed integration handles them.
 
 ## If the connector is missing
 

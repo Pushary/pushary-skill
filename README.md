@@ -157,15 +157,15 @@ Lovable gets notifications and questions only (no enforced gate, since it has no
 
 ---
 
-## Setup: Claude Cowork
+## Setup: Claude Chat and Cowork
 
-[Claude Cowork](https://claude.com/) is Anthropic's agentic workspace inside the Claude apps. It is a hosted surface (`npx skills add` does not apply), so you connect Pushary as a custom connector and add the skill through Cowork's own skill upload.
+[Pushary for Claude](https://github.com/Pushary/cowork-plugin) bundles a skill and the public OAuth connector for Chat, Cowork, and Claude Code. In Chat or Cowork, open **Customize > Plugins > Add > Add marketplace**, add `https://github.com/Pushary/cowork-plugin`, and install **Pushary for Claude**. Connect Pushary from the plugin's **Connectors** tab and sign in with the same Pushary account used by your phone or Mac. No CLI or API key is needed for this bundle.
 
-**1. Connect the MCP server.** Get your connector link from the [Pushary dashboard](https://pushary.com/dashboard/agent/settings) (**Settings -> Connections**, Claude section). In Claude, open **Settings -> Connectors -> Add custom connector**, leave the OAuth fields empty, and paste the link. Connectors are account level, so the same connector is available inside Cowork; enable it in a session under **Customize -> Connectors**.
+If the connector is missing, add `https://pushary.com/api/mcp/mcp` under **Customize > Connectors > Add custom connector** and leave the OAuth Client ID and Secret fields empty. Enable Pushary in the conversation, ask one harmless test question, and verify your answer returns to Claude.
 
-**2. Add the skill.** Zip the [`skills/pushary-cowork`](skills/pushary-cowork) folder and upload it in Cowork under **Customize -> Skills** (skills need code execution enabled). Alternatively, paste the standing instructions block from your Pushary dashboard into Claude **Settings -> Cowork**, so sessions ask for unresolved decisions and report meaningful unattended results while respecting authorization already given.
+The bundled skill guides questions and unattended task updates. Cowork also supports standing instructions under **Settings > Cowork**. The existing repository name and [`pushary-cowork`](skills/pushary-cowork) skill identifier are retained for compatibility.
 
-Cowork gets notifications and questions only (no enforced gate; this connector does not install native permission hooks). Full walkthrough: [Claude Cowork guide](https://pushary.com/docs/agents/guides/claude-desktop). Dedicated plugin repo: [Pushary/cowork-plugin](https://github.com/Pushary/cowork-plugin).
+This connector bundle provides questions and notifications and installs no native permission hooks. For Claude Code approval hooks, use the Claude Code setup above. Choose one installation path to avoid duplicate Pushary connectors. [Full Claude guide](https://pushary.com/docs/agents/guides/claude-desktop).
 
 ---
 
