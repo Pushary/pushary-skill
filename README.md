@@ -159,13 +159,15 @@ Lovable gets notifications and questions only (no enforced gate, since it has no
 
 ## Setup: Claude Chat and Cowork
 
-[Pushary for Claude](https://github.com/Pushary/cowork-plugin) bundles a skill and the public OAuth connector for Chat, Cowork, and Claude Code. In Chat or Cowork, open **Customize > Plugins > Add > Add marketplace**, add `https://github.com/Pushary/cowork-plugin`, and install **Pushary for Claude**. Connect Pushary from the plugin's **Connectors** tab and sign in with the same Pushary account used by your phone or Mac. No CLI or API key is needed for this bundle.
+For Claude Chat or Claude Code, use [Pushary for Claude](https://github.com/Pushary/claude-plugin). In Chat, open **Customize > Plugins > Add > Add marketplace**, add `https://github.com/Pushary/claude-plugin`, and install **Pushary for Claude**. In Claude Code, run `/plugin marketplace add Pushary/claude-plugin`, then `/plugin install pushary@pushary-claude-plugin`.
+
+For Cowork, the existing [Pushary for Cowork plugin](https://github.com/Pushary/cowork-plugin) remains available. Add `https://github.com/Pushary/cowork-plugin` as the marketplace and install **Pushary for Cowork**. Cowork also supports standing instructions under **Settings > Cowork**. Its existing plugin, marketplace, and [`pushary-cowork`](skills/pushary-cowork) skill identifiers are preserved.
+
+Both bundles use the public OAuth connector and the same shared skill. Connect Pushary from the plugin's **Connectors** tab in Chat or Cowork, or `/mcp` in Claude Code, and sign in with the same Pushary account used by your phone or Mac. No CLI or API key is needed for either bundle.
 
 If the connector is missing, add `https://pushary.com/api/mcp/mcp` under **Customize > Connectors > Add custom connector** and leave the OAuth Client ID and Secret fields empty. Enable Pushary in the conversation, ask one harmless test question, and verify your answer returns to Claude.
 
-The bundled skill guides questions and unattended task updates. Cowork also supports standing instructions under **Settings > Cowork**. The existing repository name and [`pushary-cowork`](skills/pushary-cowork) skill identifier are retained for compatibility.
-
-This connector bundle provides questions and notifications and installs no native permission hooks. For Claude Code approval hooks, use the Claude Code setup above. Choose one installation path to avoid duplicate Pushary connectors. [Full Claude guide](https://pushary.com/docs/agents/guides/claude-desktop).
+These bundles provide questions and notifications and install no native permission hooks. For Claude Code approval hooks, use the Claude Code setup above. Choose one installation path per app to avoid duplicate Pushary connectors. [Full Claude guide](https://pushary.com/docs/agents/guides/claude-desktop).
 
 ---
 
