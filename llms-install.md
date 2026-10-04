@@ -10,10 +10,13 @@ One command, and it needs no account and no API key up front:
 npx pushary@latest setup
 ```
 
-It writes the MCP config, hooks and permissions for you, then prints a QR code.
-Show the user your output and ask them to scan it with their phone camera: that
-pairs their Pushary app, which is what hands this machine its key. Everything
-below is only for clients that cannot run a command.
+On Windows, run `npx.cmd pushary@latest setup`.
+
+It prints a QR code first. Show the user your output and ask them to scan it
+with their phone's camera or the Pushary app, then approve on the phone. That
+pairs their Pushary app, which is what hands this machine its key. Only then
+does setup write the MCP config, hooks and permissions. Everything below is
+only for clients that cannot run a command.
 
 ## What you need for a manual install
 
