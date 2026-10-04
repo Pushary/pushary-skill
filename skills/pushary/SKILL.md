@@ -562,7 +562,7 @@ If the user answers in chat before the push response arrives, call `cancel_quest
 
 | Mode | The phone | The call |
 |---|---|---|
-| **When I'm out** (`push_first`, default) | Asked only when the user is away from the terminal and the Mac | Waits for the push-first window. 45 seconds by default. |
+| **When I'm out** (`push_first`, default) | Asked only when the user is away from the terminal and the Mac | Waits for the push-first window. 10 seconds by default. |
 | **Every time** (`push_only`) | Always asked | Waits for the policy timeout. |
 | **Updates** (`notify_only`) | Told, not asked | Returns at once with `answered: false`. Decide in the current client. |
 | **Terminal** (`terminal_only`) | Nothing is sent | Returns at once with `answered: false`. |
