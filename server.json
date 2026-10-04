@@ -3,7 +3,8 @@
   "name": "io.github.Pushary/pushary",
   "title": "Pushary",
   "description": "The decision layer for AI agents. Your agent asks, a person approves or denies on their phone.",
-  "version": "1.4.1",
+  "version": "1.4.2",
+  "websiteUrl": "https://pushary.com/?utm_source=mcp-registry&utm_medium=integration-directory",
   "repository": {
     "url": "https://github.com/Pushary/pushary-skill",
     "source": "github"
