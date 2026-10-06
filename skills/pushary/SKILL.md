@@ -174,20 +174,46 @@ Put a boundary that is not a file path in `promises`, never in `allowedPaths`. R
 
 **Look at the machine first. Do not guess the install path.** Run these. Each one is read-only and fast. Run them as separate commands.
 
+Use `uname -s` in a Unix shell (`Darwin` is Mac, `Linux` is Linux). In
+PowerShell, inspect `$env:OS` (`Windows_NT` is Windows). Platform discovery must
+not depend on Node: the native Mac route does not require it.
+
+In a Unix shell, run these separately:
+
 ```bash
-node -p "process.platform"
+uname -s
 [ -n "${PUSHARY_API_KEY:+x}" ] && echo key-in-env
-node -e "try{process.exit(JSON.parse(require('fs').readFileSync(process.env.HOME+'/.pushary/config.json','utf8')).apiKey?.trim()?0:1)}catch{process.exit(1)}" && echo keyed
+command -v node >/dev/null 2>&1 && echo node-available
+command -v npm >/dev/null 2>&1 && echo npm-available
 test -x ~/.pushary/bin/pushary-bridge && echo mac-app
 ```
 
-The third and fourth tests answer different questions.
+On Mac, check the stored key without Node or printing its value:
 
-The third says a key is stored **and is not empty**. Test the value, not the file.
+```bash
+if pushary_key_check=$(/usr/bin/plutil -extract apiKey raw -expect string -o - ~/.pushary/config.json 2>/dev/null); then
+  printf '%s\n' "$pushary_key_check" | /usr/bin/awk 'NF { found=1 } END { exit !found }' && echo keyed
+fi
+unset pushary_key_check
+```
+
+When Node is available, other Unix platforms can check the stored key with:
+
+```bash
+node -e "try{process.exit(JSON.parse(require('fs').readFileSync(process.env.HOME+'/.pushary/config.json','utf8')).apiKey?.trim()?0:1)}catch{process.exit(1)}" && echo keyed
+```
+
+In PowerShell, check for a nonempty environment/stored key without printing it;
+use `Get-Content` and `ConvertFrom-Json` for the config in `$env:USERPROFILE`.
+Check `Get-Command node,npm` before choosing the terminal installer.
+
+The stored-key and bridge tests answer different questions.
+
+The stored-key test says a key is stored **and is not empty**. Test the value, not the file.
 The file stays behind after a logout removes the key. A test for the file alone
 tells a logged-out user they are ready.
 
-The fourth says the Mac app is installed here. Only the Mac app writes that file.
+The bridge test says the Mac app is installed here. Only the Mac app writes that file.
 
 Check the environment before the stored key. An exported key wins over a stored
 one. Never print the key itself.
@@ -196,14 +222,22 @@ Then take one branch.
 
 ### Branch 1. `key-in-env`, `keyed`, or `mac-app`
 
-This machine is set up. Offer no install. Do not run `setup` again.
+This machine has an existing installation or credential. Offer no new install.
+Verify its readiness before reporting success. Do not run `setup` again.
 
 `mac-app` counts on its own. The Mac app signs in for the user. It writes the key
 into the agent configuration files it wires, not into `~/.pushary/config.json`. A
-machine the app set up therefore prints `mac-app` and nothing else. Treat it as
-ready.
+machine the app set up therefore prints `mac-app` and nothing else. The locator
+proves installation, not sign-in, entitlement, current agent admission or delivery.
 
-Check it with `npx pushary@latest status --json`. The exit code is the answer:
+For `mac-app` without Node/npm, open Pushary and check the intended account,
+subscription and Agents connection state there. Use the native app to connect or
+repair the selected agents and phone. Then send a harmless question from the
+current agent and confirm its returned answer. Do not install Node to inspect
+the native setup and do not claim a CLI status exit code when no CLI ran.
+
+When Node/npm are available, check it with `npx pushary@latest status --json`.
+The exit code is the answer:
 
 | Code | Meaning |
 | --- | --- |
@@ -224,7 +258,7 @@ grep -lq pushary-bridge ~/.claude/settings.json ~/.gemini/settings.json ~/.curso
 
 If the app owns them, `setup` would keep them and write almost nothing, so telling the user to re-run it is bad advice. Point them at the Pushary app instead.
 
-### Branch 2. `darwin`, no key, no `mac-app`
+### Branch 2. `Darwin`, no key, no `mac-app`
 
 Offer the Mac app first. It needs no Node and no terminal. It writes the agent configuration itself, and it answers questions in the notch at the desk.
 
@@ -236,7 +270,7 @@ They can also download it from https://pushary.com/download. It needs macOS 14 o
 
 The command line works on macOS too. Offer it if the user prefers the terminal, or if the user runs Hermes, because Hermes needs a Python the app cannot install.
 
-### Branch 3. `linux` or `win32`
+### Branch 3. `Linux` or `Windows_NT`
 
 There is no Mac app for these machines. Use the command line. It is fully supported.
 
@@ -251,7 +285,7 @@ Node 20.17+, 22.13+ or 23.5+ is necessary. Then the user needs a phone to answer
 
 On Windows, setup writes no shell file, so `~/.pushary/config.json` is the only key store. On a Linux machine with no screen, browser login does not work, but the pairing QR does.
 
-### Branch 4. `darwin`, `mac-app`, and the user asked for the command line
+### Branch 4. `Darwin`, `mac-app`, and the user asked for the command line
 
 Run `setup`. It reads the key the app signed in with, so it mints no second key, and it keeps the hooks the app owns. Pass `--take-over-hooks` only when the user wants the command line to own them instead.
 
