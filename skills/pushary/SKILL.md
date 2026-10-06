@@ -410,8 +410,8 @@ decision belongs in the current client (`status: "notified"`), or you passed
 otherwise `nextAction`.
 
 For backward compatibility, `nextAction` keeps its original two values. A live timeout from `ask_user` says
-`wait_for_answer`; poll once with `timeoutMs: 55000`. An unanswered poll says
-`handoffAction: cancel_then_ask_in_current_client`: cancel the phone question before asking in
+`wait_for_answer`; keep polling the same correlationId with `timeoutMs: 55000` while pending. The question stays open until answered, explicitly cancelled or expired. Only an explicit
+`handoffAction: cancel_then_ask_in_current_client` asks you to cancel the phone question before asking in
 the current chat or client. If cancellation returns `handoffAction: "stop"`, stop.
 Otherwise, if cancellation returns false, poll once for 1 second
 and honor any answer that won the race. A cancelled question says `handoffAction:
@@ -462,8 +462,7 @@ rule, so an approval you label once is an approval they never see again.
 
 Poll for the user's response to a question sent via `ask_user` with `wait: false`, or to one that timed out. Not needed when using the default blocking mode.
 
-A single call waits at most 55 seconds. Use it once after a live `ask_user`
-timeout. If it returns `answered: false`, follow `handoffAction` when present,
+A single call waits at most 55 seconds. Keep waiting with the same correlationId while pending; the poll timeout is not the question deadline. If it returns `answered: false`, follow `handoffAction` when present,
 otherwise `nextAction`: ask in the current chat or client only after cancelling a still-pending phone question. If the
 cancellation loses a race, poll once for 1 second and honor the phone answer
 instead. Only `status: "pending"` means the question is still live; cancelled,
@@ -535,8 +534,8 @@ The result tells you whether you got it right. **`hookSeen: false` means no agen
 
 `ratified` and `answered` are separate on purpose. Answered but not ratified means the user declined: ask which boundary they want, and do **not** proceed as if they had agreed. Not answered means no scope is in force.
 
-An unanswered proposal returns its `correlationId`. Poll it once; a late phone
-yes ratifies the exact stored proposal. If that poll is still pending, cancel it
+An unanswered proposal returns its `correlationId`. Keep waiting while pending; a phone
+yes ratifies the exact stored proposal. Only an explicit handoff asks you to cancel it
 before asking in the current chat whether to continue without an enforced scope.
 If cancellation returns `handoffAction: "stop"`, stop. Otherwise, if cancellation
 returns false, poll once for 1 second and honor the phone answer
@@ -567,7 +566,7 @@ attention rather than getting you answered sooner.
 
 Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
 
-Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Follow the returned handoff rather than inventing a retry loop. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
+Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Keep waiting with the same correlationId while pending. A poll ending does not expire the question; never cancel just because a poll returned without an answer. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
 
 Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 

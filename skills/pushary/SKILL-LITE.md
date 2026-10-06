@@ -59,9 +59,9 @@ Read-only: see your live agent sessions and pending questions (no notification s
 - Use `propose_scope` only for an unresolved or requested boundary, not redundant plan approval; a boundary that is not a file path goes in `promises`
 - Max 3 notifications per task
 - Ask for confirmation before risky actions outside existing authorization; preserve enforced host gates
-- If `answered: false`, follow `handoffAction` when present, otherwise `nextAction`; after one poll, cancel the phone question before asking in the current client
+- If `answered: false`, follow `handoffAction` when present, otherwise `nextAction`; keep waiting with the same correlationId while pending; cancel only for an explicit handoff or when the answer is no longer needed
 
-Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Follow the returned handoff rather than inventing a retry loop. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
+Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Keep waiting with the same correlationId while pending. A poll ending does not expire the question; never cancel just because a poll returned without an answer. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
 
 Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
