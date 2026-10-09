@@ -1,6 +1,6 @@
 ---
 name: pushary-cowork
-version: 0.5.0
+version: 0.6.0
 description: Use Pushary in Claude Chat, Cowork, or Claude Code when the user asks for phone updates, a missing decision blocks work, an action needs approval outside existing authorization, or meaningful unattended work finishes or fails. Send task updates and confirm, choice, or text questions to the user's connected devices, then read the returned answer and handoff. Requires the Pushary connector and a paid Pushary account. This skill does not install native permission hooks.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop, cowork, claude, alerts, approvals
@@ -17,6 +17,8 @@ Honor authorization already granted in this session. Ask only for a missing deci
 Every question costs the user their attention wherever they are. Before a run of more than a step or two, work out where you will need a human and fold those points together: one `select` carrying the real options beats three `confirm`s in a row, ask once at a boundary rather than once per instance, and never ask what you can determine yourself from the task or from a tool call you can make.
 
 ## When to reach out
+
+For a personal reminder later, call `schedule_reminder` with `body` and `inMinutes`, or `at` with an explicit UTC offset. Never guess the timezone; confirm the returned time. Pushary saves the reminder and delivers after this conversation ends. It does not reopen Claude or perform future agent work. No arguments lists pending reminders; `cancelReminderId` cancels a scheduled one. Delivery can be about a minute late and requires a connected phone. Do not use `ask_user` for reminders.
 
 - **You need a decision or a clarifying answer.** Call `ask_user` instead of guessing or stalling. Use type `confirm` for yes or no, `select` for a fixed set of options, and `input` for free text.
 - **An action outside your existing authorization is risky or irreversible.** Deleting or overwriting files, spending money, sending anything external, bulk changes: call `ask_user` with type `confirm` first and wait for approval.

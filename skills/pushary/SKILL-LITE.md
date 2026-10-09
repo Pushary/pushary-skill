@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.6.3
+version: 0.7.0
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says ping me on my phone, notify me when my agent needs me, approve from my phone, or run this overnight. Ask questions, send alerts, get answers from connected devices.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop
@@ -11,6 +11,10 @@ metadata:
 Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
 
 Reach for them without being asked when: you are about to do something irreversible, spend money, or touch production; the decision is outside your authority; you are unattended and hit a real ambiguity; another skill's workflow says to confirm with the user; or a long task finished with nobody watching.
+
+## schedule_reminder
+
+For “remind me later,” call with `body` and `inMinutes`, or `at` as an ISO timestamp with explicit UTC offset. Never guess the timezone; confirm the returned time. Pushary delivers to the creator's phone after the agent exits, normally within about a minute of the due time. One-time only, within 30 days. No arguments lists pending reminders; `cancelReminderId` cancels a scheduled one. Do not use `ask_user` for reminders.
 
 ## ask_user
 

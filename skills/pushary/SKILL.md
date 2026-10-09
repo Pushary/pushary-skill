@@ -1,7 +1,7 @@
 ---
 name: pushary
-version: 0.11.2
-description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted service, $9.99/mo after a 3-day card-first trial.
+version: 0.12.0
+description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted, paid service; web and native store checkout have different price and trial terms.
 metadata:
   hermes:
     tags: [notifications, push, human-in-the-loop, alerts, permissions, mcp]
@@ -50,8 +50,12 @@ action.
 
 ## Pricing and Free Alternatives
 
-Pushary is a hosted service. It costs $9.99/mo after a 3-day trial. The trial asks
-for a card up front. Say this plainly when the user asks what Pushary is.
+Pushary is a hosted, paid service. Eligible web signups offer a 3-day trial with
+a card required, then $9.99/mo for the Agent plan. Native app subscriptions use
+the local store price and any eligible intro offer shown in the app. Before
+checkout, tell the user it needs a paid plan and have them review the displayed
+price, trial eligibility and payment method; do not promise web terms inside
+the native app.
 
 Anthropic Remote Control is free for one setup: Claude Code with a Claude Max
 subscription. Recommend it when that is all the user needs.
@@ -302,8 +306,8 @@ It prints a QR, a short link under it, a fingerprint, and then waits about 15 mi
 **Do not summarise that output. Show it, and walk the user through all four steps:**
 
 1. **Show them the QR and the short link.** Both point at the same pairing. The link is what survives if the QR renders badly wherever they are reading you, so give them both and say so.
-2. **They need the Pushary app.** It is the thing that receives approvals. If they do not have it: https://pushary.com/download. Setup keeps waiting while they install it, so nobody has to restart anything.
-3. **They scan the QR, or open the link on the phone.** The app shows a fingerprint. Tell them it must match the one in your output before they approve. On a first install the app will also ask them to sign in and start a plan: $9.99/mo after a 3-day trial, card up front, all inside the app. Say this before they scan rather than letting them discover it mid-flow.
+2. **They need the Pushary app.** It is the thing that receives approvals. If they do not have it: https://pushary.com/download. Setup keeps waiting while they install it. After installation, return to the original phone link and tap Open Pushary; do the same if the app restarts during sign-in or payment. If the code expires, run setup again for a fresh one.
+3. **They scan the QR, or open the link on the phone.** The app shows a fingerprint. Tell them it must match the one in your output before they approve. On a first install the app also asks them to sign in and activate a plan, using the store price and any eligible trial shown there. They review and confirm the payment terms themselves. Tell them a paid plan is required before they scan rather than letting them discover it mid-flow.
 4. **They approve.** Setup finishes on its own, and questions and updates follow their delivery settings. Confirm notifications can offer lock-screen actions; choices and text open the app.
 
 Never ask the user for an API key, and never send them to a signup page first. Both are the old flow and both are worse.
@@ -322,11 +326,17 @@ This is web push, not a login tab. It prints a QR for the user's own subscribe p
 
 Manual MCP configuration also works, but it needs a key, so the user signs up first at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup and copies the key from the dashboard. Prefer `setup`: it needs neither.
 
-After setup, verify with:
+For CLI-owned setup with Node/npm and a CLI credential, explicitly test a synthetic question and answer with:
 
 ```bash
-npx pushary@latest doctor
+npx pushary@latest doctor --roundtrip
 ```
+
+A returned answer proves the question path, not agent hook enforcement. Restart
+the intended agent and follow its real approval check at
+https://pushary.com/docs/agents/supported-agents. For Mac-owned setup, use the
+app's connection tests and ask a harmless question through the current agent;
+do not install Node/npm or infer native readiness from a CLI with no credential.
 
 ## Answer surfaces and account boundaries
 
@@ -337,7 +347,7 @@ npx pushary@latest doctor
 | Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
-Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx pushary@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
+Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Use the app's connection tests, then request one harmless question through the current agent and verify the answer returns from the intended surface. Native setup does not need Node/npm. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
 Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
 
@@ -347,6 +357,12 @@ Your client already holds each tool's schema. The schema lists every parameter
 and every returned field, and it is always current. This section adds only what a
 schema cannot say: when to use a tool, what its result means for your next step,
 and the shapes that are easy to get wrong.
+
+### schedule_reminder
+
+When the user asks “remind me later,” set a one-time personal reminder with `body` and either `inMinutes` (from the server clock) or `at` (ISO timestamp with explicit UTC offset or Z). Confirm the returned `fireAt` in their local time. Never guess their timezone. For example, `{"body":"Check the deploy","inMinutes":30}`. Pushary persists it and delivers to the authenticated creator even after the agent exits. It does not schedule agent work.
+
+Call with no arguments to list pending reminders. Pass `cancelReminderId` to cancel a scheduled reminder; `cancelled:false` means it was not cancelled and it may already be dispatching. Limits: 30 days ahead, 25 pending per user/site. Delivery normally follows within about a minute, requires a connected phone, and respects current account access, membership and stop/mute. Test reminders never notify. Do not use `ask_user` for reminders or promise exact delivery time.
 
 ### send_notification
 
