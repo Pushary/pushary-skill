@@ -1,52 +1,121 @@
 ---
 name: pushary-chatgpt
-version: 0.1.3
-description: Reach the user through Pushary when ChatGPT or Codex needs an unresolved decision or has a meaningful unattended result. Honor existing authorization, batch questions, and follow the server's delivery policy. Use for requests such as ping me when done, ask while I am away, or run this overnight.
+version: 0.2.0
+description: Reach the user on their phone through Pushary while ChatGPT or Codex works on a task. Use it to get a plan approved before starting, to ask before a step the user has not approved, and to send one summary when the work is done or fails. Use for requests such as get my approval on my phone first, ask me on my phone before anything you can't undo, I'm stepping away, ping me when it's done, send me a summary, or remind me later. Honor approvals the user already gave and follow the server's delivery policy.
 metadata:
   tags: planning, approvals, human-in-the-loop, notifications, push, chatgpt, codex
 ---
 
 # Pushary for ChatGPT and Codex
 
-Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
+Pushary connects this chat to the user's phone. You send a question or an update, the user gets a push, and their answer comes back to you. Yes or no questions can be answered from the lock screen where the phone supports it; choices and typed answers open the Pushary app. Every question and answer is recorded in Pushary.
 
-## Plan without adding a permission step
+You decide when to call Pushary. It does not watch or block your actions, so the rules below are yours to follow.
 
-Find the decisions before acting. Resolve anything already answered in the conversation or available through a tool. Bundle genuine unresolved choices into one question, and continue authorized independent work. Ask for plan approval only when the user requested it or the plan exceeds their authorization.
+## Tools
 
-## Ask only for the missing decision
+| Tool | Use it to |
+| --- | --- |
+| `ask_user` | Ask one question and get the answer: `confirm` for yes or no, `select` for two to six options, `input` for a fact only the user knows. |
+| `wait_for_answer` | Keep waiting for a question that is still pending, with its `correlationId`. |
+| `cancel_question` | Withdraw a question that is no longer needed. |
+| `send_notification` | Tell the user something: a finished task, a failure, or an update they asked for. |
+| `schedule_reminder` | Set a one-time personal reminder, when the user asks to be reminded later. |
+| `propose_scope` | Record the boundary of a run so the user can agree to it. |
 
-Use `ask_user` with `confirm` for an action approval, `select` for two to six options, or `input` for a fact only the user knows. Pass `agentName` as the actual host and task, such as `Codex - invoice audit`, plus a stable `sessionId` for the conversation. Do not rename yourself to another host.
+Pass `agentName` on every call as the host and the task, for example `ChatGPT - Q3 board deck` or `Codex - invoice audit`. Pass the same `sessionId` for the whole conversation. Do not call yourself another host.
 
-Do not duplicate the question in another channel while a phone answer is live. If the user is present, respect the current-client handoff and delivery settings instead of forcing another phone prompt.
+## What the user asks for, and what to do
 
-## Waiting and cancellation
+| The user says | Do this |
+| --- | --- |
+| "Plan this first, then get my approval on my phone." | Write the plan. Send it as one `confirm` question with the steps in `question`. Start only after a yes. On a no, ask what to change. |
+| "Ask me on my phone before anything you can't undo." "I'm stepping away." | Work. Before each step in the list below, ask with `ask_user`. Keep going with work that does not depend on the answer. |
+| "Ask me at every decision." | Ask each real choice as one `select` question with your recommended option first. |
+| "Ping me when it's done." "Send me a summary." | When the work ends, send one `send_notification` with `context.type` set to `task_complete` and the result in `summary`. |
+| "Tell me if something breaks." | On a failure you cannot fix, send `send_notification` with `context.type` set to `error`. |
+| "Remind me in 30 minutes." | Call `schedule_reminder`. Tell the user the time it returns. |
+| "Send a test question." | Send one harmless `confirm` question and report what the user answered. |
 
-Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Keep waiting with the same correlationId while pending. A poll ending does not expire the question; never cancel just because a poll returned without an answer. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
+The user does not have to say "Pushary". "Ask me on my phone", "get my approval" and "ping me" mean these tools.
 
-Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
+## Before the task: get the plan approved when asked
 
-`ask_user` may block or return immediately according to policy. Keep polling the same correlationId while the returned action says `wait_for_answer`. Show `answerUrl` when it is present and useful; it is not guaranteed on every response. Use `cancel_question` when an answer is no longer needed, including when the user answers in chat, and settle any race before acting.
+Ask for plan approval only when the user asked for it, or when the plan goes beyond what they asked you to do. A task with many steps does not need a plan approval by itself. Start `question` with a short line the lock screen can show, such as "Approve the plan for the Q3 board deck?", then list the steps after it. `question` holds up to 8,000 characters; `context` holds only 500, so use `context` for one line of background, never for the plan.
 
-## Notify when the result needs attention
+## During the task: ask before a step the user has not approved
 
-Use `send_notification` for meaningful completion while the user is away, an unresolved failure, or an update they requested. Skip trivial completions and duplicate reports to someone already reading. Pass `context.type` as `task_complete`, `error` or `info`; put the result in `summary` and supporting detail in `details`, `filesChanged` or `nextSteps`. Do not add a follow-up question merely to keep the turn open.
+Ask with `ask_user` before any of these, unless the user already approved that exact step in this conversation:
 
-## Optional file scope in Codex
+- **Something that cannot be undone.** Deleting, overwriting or replacing something the user made.
+- **Something that leaves this chat.** Sending an email or message, posting, publishing, or sharing with someone else.
+- **Money.** A purchase, a booking, a paid plan, or anything billable.
+- **A decision that belongs to the user.** A product, naming, pricing or wording choice they would want to make themselves.
+- **A real fork when the user is away.** Two good readings of the task, where the wrong one wastes the work.
 
-Use `propose_scope` when the user requested an enforced boundary or one remains unresolved. Pass `doneWhen` and `sessionId`, plus `allowedPaths` and `offLimitsPaths` for a run that changes files, or `promises` for a boundary that is not a path (recipients, channels, spend, systems). Do not re-request authorization for an already agreed task. Only `ratified: true` establishes the server contract; chat approval is not a server-ratified scope.
+How to ask well:
 
-Only file paths are enforced, and only on tool calls that carry one; `promises` is shown to the user and recorded but never checked. Read `enforces` in the result: an empty list means nothing in the contract is checked automatically, and you must say so rather than report that a scope is in force. Enforcement also requires the supported Pushary hook. Shell commands remain governed by the host's permission policy. ChatGPT without file access has no path to gate, so its boundary belongs in `promises`.
+- **Ask in the chat when the user is here.** If the user is in this conversation and has not asked to be reached on their phone, ask in the chat. Use Pushary when they asked for it, said they are stepping away, or the work runs on without them. Their delivery setting decides the rest; do not force a phone prompt.
+- **Find the decisions first.** Settle what you can from the conversation or a tool. Ask only what is left.
+- **One question per stop.** Put related choices in one `select` question with your recommendation first, rather than several yes or no questions.
+- **Be exact.** "Send the renewal email to the 14 customers on the list?" beats "Should I continue?"
+- **Ask once, on one channel.** Do not repeat a question in chat while it is live on the phone.
+- **Do not ask again for what the user already approved** in this conversation. Do not turn your step list into a question.
+
+## After the task: send one summary
+
+When the work ends, send one `send_notification`:
+
+```json
+{
+  "title": "Board deck ready",
+  "body": "12 slides drafted. Two numbers need your check.",
+  "agentName": "ChatGPT - Q3 board deck",
+  "context": {
+    "type": "task_complete",
+    "summary": "Drafted 12 slides from the Q3 numbers you shared.",
+    "nextSteps": "Check the churn and CAC figures on slides 7 and 9."
+  }
+}
+```
+
+Keep `title` under 60 characters and `body` under 200. Use `context.type` `task_complete`, `error` or `info`. Send at most three notifications for one task unless the user asked for more. Skip a notification for a trivial task or when the user is reading the chat. Do not add a question just to keep the turn open.
+
+When you can keep working on your own recommendation, put a choice in `context.askQuestion` on the notification instead of a separate `ask_user`. The call does not wait. Read the answer later from the returned `linkedCorrelationId` with `wait_for_answer`. The embedded question closes after 10 minutes, so use it only for a choice you can make yourself if the user does not answer. When the work the user asked for is done, report it and stop; do not ask what to do next unless they asked you to.
+
+## Waiting for an answer
+
+Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. `ask_user` waits up to 55 seconds, or returns at once, depending on the user's delivery policy. When a call returns with the question still `pending`, keep waiting with `wait_for_answer` and the same `correlationId`. A poll ending does not end the question; never cancel just because a poll returned without an answer.
+
+When you are connected by signing in to Pushary, as in ChatGPT, a question stays open for 10 minutes. Only `pending` is live. `expired`, `cancelled`, `missing` and `unavailable` are not new timeouts. An expired question was not answered: do not take the step it asked about, and follow `nextAction`, which asks you to put the question to the user in this chat instead. Silence is never consent. A `select` or `input` answer containing "yes" is the answer's data, not approval of some other action.
+
+If your reply has to end while a question is still pending, say so plainly: the question is on their phone, and when they have answered they can tell you here to continue. On the next turn, call `wait_for_answer` with that `correlationId` before anything else. Never claim that an answer on the phone restarts a reply that has already ended.
+
+If the user answers in chat instead, and the question is still live on the phone, call `cancel_question` before acting. If cancellation returns `handoffAction: "stop"`, stop. If it returns `cancelled: false`, call `wait_for_answer` once for one second and honor whichever answer won.
+
+Delivery is the user's setting, not yours: `push_first` uses presence, `push_only` sends a push every time, `notify_only` leaves the decision in the current client, and `terminal_only` sends no push. Do not override the mode or send the same question on every surface. Show `answerUrl` when it is present and useful; it is not on every response.
+
+## When Pushary cannot reach the user
+
+- **Pushary refuses the connection because the account has no site yet.** Pass that message to the user exactly as it is, with its link. Wait until they say setup is finished. Do not call Pushary again before then. When they do, send one harmless test question first, then carry on with what they asked. If it reaches no device or stays pending, tell them to install the Pushary phone app and sign in with the same account; a pending question waits there.
+- **Pushary refuses because the account is a viewer.** Pass the message as it is. A workspace owner or admin has to change the role.
+- **The result has `noDevices: true`, or says no phone received it.** Tell the user to install the Pushary phone app from https://pushary.com/download and sign in with the same Pushary account this chat is connected to. Follow `handoffAction`, or `nextAction` when there is none. Undelivered is not permission to take the step.
+- **Pushary says the account is not active.** Tell the user Pushary cannot reach their phone until their Pushary account is active again, and stop calling it in this conversation.
+- **Pushary says to answer or cancel an existing question first.** Wait for the open question, or cancel it if it is no longer needed, before asking another.
+
+Never ask the user for payment details, do not mention prices or plans, and do not pass on an upgrade link.
+
+## A boundary for the run
+
+Use `propose_scope` when the user asks for an agreed boundary, or one is still open. Pass `doneWhen` and `sessionId`. In ChatGPT, which changes no files on the user's computer, put the whole boundary in `promises`: who you will contact, what you will publish, what you will not spend. Only `ratified: true` means the user agreed; a yes in chat is not a ratified scope. Read `enforces` in the result. An empty list means nothing is checked automatically, and you must say so rather than call the boundary enforced. In Codex, `allowedPaths` and `offLimitsPaths` are enforced only on file edits and only with the Pushary hook installed; shell commands stay under the host's own approval rules.
 
 ## Answer surfaces and account boundaries
 
 | Surface | What the user can do |
 | --- | --- |
-| Mobile app | Answer confirm, select and input questions. Supported confirm notifications offer approve/deny actions on the lock screen; arbitrary choices and text open the app. |
-| Mac notch | Answer personal account questions with confirm, select, input and question-set controls, including keyboard controls. Presence and delivery policy determine when the phone is also reached. |
-| Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
-| Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
+| Mobile app | Answer confirm, select and input questions. Supported confirm notifications offer approve and deny actions on the lock screen; choices and text open the app. |
+| Mac notch | Answer personal account questions with confirm, select, input and question-set controls. Presence and delivery policy decide when the phone is also reached. |
+| Slack | Answer through buttons, menus or text forms when the integration and the right recipient are set up. |
+| Browser | Open the decision page as a fallback. Browser notifications need permission. |
 
-Personal setup connects the operator's devices. For a Mac, install from https://pushary.com/download, sign in to the same personal account and connect your agents in the app. Run `npx pushary@latest doctor`, then request one harmless test question and verify it reaches the intended surface. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
-
-Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
+Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch uses the personal account; do not promise a Partner customer inbox on Mac. Partner setup: https://pushary.com/docs/agents/embed.

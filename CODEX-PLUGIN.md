@@ -1,11 +1,14 @@
 # The ChatGPT and Codex plugin
 
 This package is two distributions of one skill set. `.claude-plugin/plugin.json` is the
-Claude Code plugin. `.codex-plugin/plugin.json` is the ChatGPT and Codex plugin. They share
+Claude Code plugin. `.codex-plugin/plugin.json` is the Codex plugin you install yourself. They share
 `skills/`, `logo.png` and `.mcp.json`; nothing is duplicated.
 
-Published plugins land in **one directory shared by ChatGPT and Codex**, so this is a single
-submission that reaches both.
+Published plugins land in **one directory shared by ChatGPT and Codex**. The published
+Pushary listing is not built from this folder. It is a separate package, uploaded to the OpenAI
+portal as a ZIP, that signs in with OAuth and carries only the `pushary-chatgpt` skill and a
+setup skill. This folder's `.codex-plugin` is for installing Pushary in Codex yourself, with an
+API key and hooks, which a directory listing cannot carry.
 
 ## Testing it locally, before OpenAI is involved
 
@@ -30,10 +33,10 @@ Native Codex hooks are installed by `pushary setup`. Omitting the field would
 cause Codex to discover the Claude configuration after hook trust is granted.
 See [OpenAI's bundled hook rules](https://developers.openai.com/plugins/build/plugins).
 
-**`.app.json`.** For a hosted plugin, OpenAI wants the MCP server registered through the
-portal and referenced by id, not the keyed HTTP config in `.mcp.json`. That id does not
-exist yet. `.mcp.json` is still correct for a Codex user running locally with
-`PUSHARY_API_KEY` set, so it stays; `.app.json` is added alongside it once we hold an id.
+**`.app.json`.** A directory upload cannot contain app references, and it rejects MCP server
+headers, so the keyed `.mcp.json` here cannot be uploaded either. The published listing's
+server is connected in the OpenAI portal instead. `.mcp.json` stays correct for a Codex user
+running locally with `PUSHARY_API_KEY` set.
 
 **Screenshots.** `interface.screenshots` is omitted rather than pointed at files that are
 not in this package. The submission form collects them separately.

@@ -1,6 +1,6 @@
 {
   "name": "pushary",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Push notifications and human-in-the-loop for AI agents. Get a push when a task finishes, and answer the agent from your phone while you are away from the keyboard.",
   "author": {
     "name": "Pushary",
@@ -33,7 +33,7 @@
     "defaultPrompt": [
       "Use Pushary to notify me on my phone when this finishes.",
       "Ask me on my phone whether to deploy this, then wait for my answer.",
-      "Keep working and send me a push if you hit an error you cannot resolve."
+      "Send a test question to my phone with Pushary."
     ],
     "brandColor": "#2a6b6b",
     "composerIcon": "./logo.png",
