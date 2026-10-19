@@ -88,7 +88,7 @@ For Hermes specifically:
 npx pushary@latest setup --agents hermes
 ```
 
-This installs the native plugin in Hermes' interpreter and configures it. The plugin provides notification, question, wait, cancel and scope tools, plus Partner enrollment and customer-question tools. Its parameters use snake_case; use the [Hermes skill](skills/hermes/SKILL.md), not MCP parameter names. The native approval transport preserves Hermes' session and standing approvals.
+This writes the native plugin to `~/.hermes/plugins/pushary` and turns it on with `hermes plugins enable pushary` and `hermes config set`. Restart Hermes afterward with `hermes gateway restart`. The plugin provides notification, question, wait, cancel, reminder and scope tools, plus Partner enrollment and customer-question tools. Its parameters use snake_case; use the [Hermes skill](skills/hermes/SKILL.md), not MCP parameter names. The native approval transport preserves Hermes' session and standing approvals.
 
 ## Mac notch and other answer surfaces
 

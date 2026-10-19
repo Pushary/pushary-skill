@@ -272,7 +272,7 @@ brew install --cask pushary/tap/pushary
 
 They can also download it from https://pushary.com/download. It needs macOS 14 or later. It is not in the App Store.
 
-The command line works on macOS too. Offer it if the user prefers the terminal, or if the user runs Hermes, because Hermes needs a Python the app cannot install.
+The command line works on macOS too. Offer it if the user prefers the terminal. The app connects Hermes as well.
 
 ### Branch 3. `Linux` or `Windows_NT`
 
