@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "MessageDisplay": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-display-hook",
+            "timeout": 1
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit|PowerShell|Monitor|AskUserQuestion|ExitPlanMode",
