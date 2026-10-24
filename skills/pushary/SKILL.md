@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.12.0
+version: 0.12.1
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, do not wait for me, or wants a long task to run unattended. Send alerts when tasks finish or fail, ask questions (yes/no, multiple choice, or free text) via push, and get answers from their connected devices. Use these tools proactively - do not wait for the user to ask for notifications. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted, paid service; web and native store checkout have different price and trial terms.
 metadata:
   hermes:
@@ -301,7 +301,9 @@ npx pushary@latest setup
 
 Setup pairs first and configures MCP, hooks, permissions and the skill only once pairing succeeds. Until someone completes the steps below, nothing is written and this machine has no Pushary. Treat pairing as the task, not as a prompt to wait out.
 
-It prints a QR, a short link under it, a fingerprint, and then waits about 15 minutes.
+It prints a QR, a short link, a fingerprint, and then waits about 15 minutes.
+
+**Run it in the background.** Fifteen minutes is longer than a foreground command may run in most agents, and a killed setup kills the pairing code with it. Start setup as a background process that writes to a log, read the link, QR and fingerprint from that log, show them to the user, and keep checking the log until setup exits. Start while the user can still read your messages: until they approve, nothing is configured and you have no other way to reach them.
 
 **Do not summarise that output. Show it, and walk the user through all four steps:**
 
@@ -312,21 +314,15 @@ It prints a QR, a short link under it, a fingerprint, and then waits about 15 mi
 
 Never ask the user for an API key, and never send them to a signup page first. Both are the old flow and both are worse.
 
-If setup exits without pairing, nothing was configured. Say that plainly and offer the two fallbacks below rather than pretending the tools are available.
+If setup exits without pairing, nothing was configured. Say that plainly and offer the fallback below rather than pretending the tools are available.
 
 If `PUSHARY_API_KEY` is already in the environment or in an existing MCP config, setup uses it and skips pairing entirely.
 
-No app on their phone yet? They can get it at https://pushary.com/download. Or answer through the browser instead:
-
-```bash
-npx pushary@latest setup --connect browser
-```
-
-This is web push, not a login tab. It prints a QR for the user's own subscribe page, and it waits for a browser on that page to subscribe. On iOS the user must first add that page to the Home Screen, because iOS sends web push only from an installed page.
+No app on their phone yet? They can get it at https://pushary.com/download while setup keeps waiting. If the code expired, run setup again for a fresh one.
 
 Manual MCP configuration also works, but it needs a key, so the user signs up first at https://pushary.com/sign-up?utm_source=skill&utm_medium=setup and copies the key from the dashboard. Prefer `setup`: it needs neither.
 
-For CLI-owned setup with Node/npm and a CLI credential, explicitly test a synthetic question and answer with:
+When you run setup, it sends only a test notification, because it cannot tell whether the user is there to answer. Right after it finishes, while the user still has their phone in hand, test a synthetic question and answer. For CLI-owned setup with Node/npm and a CLI credential:
 
 ```bash
 npx pushary@latest doctor --roundtrip
@@ -607,14 +603,14 @@ else:
 
 If the user answers in chat before the push response arrives, call `cancel_question` before acting. If it returns `handoffAction: "stop"`, stop. Otherwise, if it returns false, poll once for 1 second and honor any phone answer that won the race.
 
-**How long `ask_user` blocks.** The user sets the delivery mode for their site. You do not set it. The mode decides how long the call waits, and whether it waits at all.
+**How long `ask_user` blocks.** The user sets the delivery mode for their site. You do not set it. The mode decides how long the call waits, and whether it waits at all. New workspaces start on **Always**; the user can pick any of the four in the app.
 
 | Mode | The phone | The call |
 |---|---|---|
-| **When I'm out** (`push_first`, default) | Asked only when the user is away from the terminal and the Mac | Waits for the push-first window. 20 seconds by default. |
-| **Every time** (`push_only`) | Always asked | Waits for the policy timeout. |
-| **Updates** (`notify_only`) | Told, not asked | Returns at once with `answered: false`. Decide in the current client. |
-| **Terminal** (`terminal_only`) | Nothing is sent | Returns at once with `answered: false`. |
+| **When away** (`push_first`) | Asked only when the user is away from the terminal and the Mac | Waits for the push-first window. 20 seconds by default. |
+| **Always** (`push_only`) | Always asked | Waits for the policy timeout. |
+| **Alert only** (`notify_only`) | Told, not asked | Returns at once with `answered: false`. Decide in the current client. |
+| **In agent** (`terminal_only`) | Nothing is sent | Returns at once with `answered: false`. |
 
 Always read `answered`. Never assume the call waited. Pass `timeoutMs` only when you want a shorter wait than the site policy.
 

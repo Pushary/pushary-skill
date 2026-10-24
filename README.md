@@ -109,13 +109,7 @@ Personal pairing connects you, the operator. Partner integrations enroll each of
 
 Start with the [Partner integration guide](https://pushary.com/docs/agents/embed), then a [Mastra agent example](https://github.com/Pushary/pushary-mastra/tree/main/examples), [AI SDK example](https://github.com/Pushary/pushary-ai-sdk/tree/main/examples) or [LangGraph example](https://github.com/Pushary/pushary-langgraph/tree/main/examples). Tools choose confirm, choice or text. Approving an action and supplying an answer are different operations; a text answer saying “yes” is not permission to execute another tool.
 
-## Browser and manual fallbacks
-
-For browser pairing:
-
-```bash
-npx pushary@latest setup --connect browser
-```
+## Manual fallback
 
 For a client that needs manual MCP configuration, obtain your key in the Pushary dashboard and configure:
 
@@ -151,7 +145,7 @@ The plugin starts each hook through `npx`, which is too slow for the hook that s
 
 [Lovable](https://lovable.dev) is a hosted app builder, so there is no local install step (`npx skills add` does not apply). You connect the MCP server in Lovable's UI, then paste the skill into Lovable's Knowledge so the agent uses it on its own.
 
-**1. Connect the MCP server.** In Lovable, go to **Settings -> Connectors -> Personal connectors** (paid Lovable plans), click **New MCP server**, set the URL to `https://pushary.com/api/mcp/mcp`, choose **Bearer token**, and paste your API key (`pk_xxx.sk_xxx`).
+**1. Connect the MCP server.** In Lovable, go to **Settings -> Connectors -> Personal connectors** (paid Lovable plans), click **New MCP server**, set the URL to `https://pushary.com/api/mcp/mcp`, choose **Bearer token**, and paste your API key (`pk_xxx.xxx`).
 
 **2. Add the skill to Knowledge.** Lovable cannot install skills via `npx`, so paste the skill guidance into **Settings -> Knowledge**. Use the condensed [`SKILL-LITE.md`](skills/pushary/SKILL-LITE.md) as the source. This makes the Lovable agent notify you when a build finishes and ask before risky changes, without you prompting each time.
 

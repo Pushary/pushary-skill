@@ -20,7 +20,7 @@ only for clients that cannot run a command.
 
 ## What you need for a manual install
 
-A Pushary API key in the format `pk_xxx.sk_xxx`. Get one at https://pushary.com/sign-up
+A Pushary API key in the format `pk_xxx.xxx`. Get one at https://pushary.com/sign-up
 (the agent plan is $9.99/mo after a 3 day trial). The key is the only required value.
 
 ## Steps
@@ -36,14 +36,14 @@ A Pushary API key in the format `pk_xxx.sk_xxx`. Get one at https://pushary.com/
     "pushary": {
       "url": "https://pushary.com/api/mcp/mcp",
       "headers": {
-        "Authorization": "Bearer pk_xxx.sk_xxx"
+        "Authorization": "Bearer pk_xxx.xxx"
       }
     }
   }
 }
 ```
 
-Replace `pk_xxx.sk_xxx` with the user's key.
+Replace `pk_xxx.xxx` with the user's key.
 
 3. Reload MCP servers. `tools/list` should return `send_notification`, `ask_user`,
    `wait_for_answer` and `cancel_question` among others.
@@ -59,7 +59,7 @@ https://pushary.com/dashboard/agent/settings to connect their phone or browser.
 The key can ride in the URL instead:
 
 ```
-https://pushary.com/api/mcp/mcp?api_key=pk_xxx.sk_xxx
+https://pushary.com/api/mcp/mcp?api_key=pk_xxx.xxx
 ```
 
 An SSE transport is available at `https://pushary.com/api/mcp/sse`.

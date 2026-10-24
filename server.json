@@ -3,7 +3,7 @@
   "name": "io.github.Pushary/pushary",
   "title": "Pushary",
   "description": "The decision layer for AI agents. Your agent asks, a person approves or denies on their phone.",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "websiteUrl": "https://pushary.com/?utm_source=mcp-registry&utm_medium=integration-directory",
   "repository": {
     "url": "https://github.com/Pushary/pushary-skill",
@@ -16,7 +16,7 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Bearer <Pushary API key> (format pk_xxx.sk_xxx, from pushary.com)",
+          "description": "Bearer <Pushary API key> (format pk_xxx.xxx, from pushary.com)",
           "isRequired": true,
           "isSecret": true
         }
@@ -28,7 +28,7 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Bearer <Pushary API key> (format pk_xxx.sk_xxx, from pushary.com)",
+          "description": "Bearer <Pushary API key> (format pk_xxx.xxx, from pushary.com)",
           "isRequired": true,
           "isSecret": true
         }
