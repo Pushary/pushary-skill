@@ -143,6 +143,8 @@ Claude Code users can alternatively install this repository as a plugin:
 
 That path reads `PUSHARY_API_KEY` from the environment. Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx pushary@latest clean` before switching paths.
 
+The plugin starts each hook through `npx`, which is too slow for the hook that streams live reply previews to your phone, so the plugin leaves that hook out. For live previews, install with `npx pushary@latest setup` instead. Setup installs every hook as a local command.
+
 ---
 
 ## Setup: Lovable
