@@ -1,6 +1,6 @@
 ---
 name: pushary-cowork
-version: 0.6.0
+version: 0.7.0
 description: Use Pushary in Claude Chat, Cowork, or Claude Code when the user asks for phone updates, a missing decision blocks work, an action needs approval outside existing authorization, or meaningful unattended work finishes or fails. Send task updates and confirm, choice, or text questions to the user's connected devices, then read the returned answer and handoff. Requires the Pushary connector and a paid Pushary account. This skill does not install native permission hooks.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop, cowork, claude, alerts, approvals
@@ -14,7 +14,7 @@ Pushary is connected as a custom connector. It reaches the user on their phone, 
 
 Honor authorization already granted in this session. Ask only for a missing decision or an action outside that authorization, or when an enforced host policy requires it. A multi-step task alone does not require plan approval. Never ask again merely because the next authorized step deletes, deploys or publishes something. These skills guide the agent; supported hooks and runtime approval gates enforce policy. Do not bypass an enforced gate.
 
-Every question costs the user their attention wherever they are. Before a run of more than a step or two, work out where you will need a human and fold those points together: one `select` carrying the real options beats three `confirm`s in a row, ask once at a boundary rather than once per instance, and never ask what you can determine yourself from the task or from a tool call you can make.
+Every question costs the user their attention wherever they are. Before a run of more than a step or two, work out where you will need a human and fold those points together: one `select` carrying the real options beats three `confirm`s in a row, ask once at a boundary rather than once per instance, and never ask what you can determine yourself from the task or from a tool call you can make. If you would take your default without asking at all, and it is reversible, spends nothing and stays inside the task, do not ask: take it and list the decision in your final message so the user can change it. An irreversible step, spending money or a decision outside your authority still gets a question unless the user already approved it.
 
 ## When to reach out
 
@@ -22,7 +22,7 @@ For a personal reminder later, call `schedule_reminder` with `body` and `inMinut
 
 - **You need a decision or a clarifying answer.** Call `ask_user` instead of guessing or stalling. Use type `confirm` for yes or no, `select` for a fixed set of options, and `input` for free text.
 - **An action outside your existing authorization is risky or irreversible.** Deleting or overwriting files, spending money, sending anything external, bulk changes: call `ask_user` with type `confirm` first and wait for approval.
-- **Meaningful work finishes while the user is away, or they requested an alert.** Call `send_notification` with a short summary of what changed, and pass `context.type` as `task_complete`. That is what marks it a task update, and the user's setting for where task updates land can only route one that says so. Keep a reply channel open only for a specific unresolved decision needed to finish, as described below.
+- **Meaningful work finishes while the user is away, or they requested an alert.** Call `send_notification` with a short summary of what changed, and pass `context.type` as `task_complete`. That is what marks it a task update, and the user's setting for where task updates land can only route one that says so. Ask before you stop only for a specific unresolved decision needed to finish, as described below.
 - **You are blocked or hit an error you cannot resolve.** Call `send_notification` with `context.type` as `error` so the user knows, and `ask_user` if you need a decision to continue.
 - **Another skill's workflow says to confirm with the user.** That instruction assumes someone is watching the session. Often nobody is. Route the confirmation through `ask_user` so the run continues when they answer, instead of stalling on a prompt they never see.
 
@@ -30,11 +30,11 @@ For a personal reminder later, call `schedule_reminder` with `body` and `inMinut
 
 The connector carries only the updates and questions you send. Once your turn ends, this connector is no longer listening for answers. It cannot start a new Chat, Cowork, or Claude Code task, so a reply that says "now do X" reaches nobody unless you asked for it before you stopped.
 
-When a specific unresolved decision is needed before you can finish, keep the channel open:
+When a specific unresolved decision is needed before you can finish, ask it before you stop:
 
-1. Call `send_notification` with `context.type` set to `task_complete` and `context.askQuestion` set to an `input` question, such as "Which of these two drafts should I publish?".
-2. Poll the returned `linkedCorrelationId` once with `wait_for_answer`, then follow its handoff.
-3. Act on the answer in this same session, then hand back the same way again if more work follows.
+1. Call `ask_user` with the decision, such as "Which of these two drafts should I publish?".
+2. While it is pending, keep waiting with `wait_for_answer`, then follow its handoff. A question from this connector closes 10 minutes after it is sent; most answers arrive within a minute.
+3. Act on the answer in this same session. If it closes unanswered, that is not approval: ask in the chat instead.
 
 Do not create a question just to keep the turn alive or ask for optional feedback after every result. Once this turn ends, the user must send follow-up work in Claude.
 
@@ -45,7 +45,7 @@ Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on 
 Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
 - If a poll ends while pending, keep waiting with the same question id. Cancel only when explicitly handing off or the answer is no longer needed. If cancellation returns `handoffAction: "stop"`, stop. Otherwise, if cancellation returns false, poll once for 1 second and honor the answer that won the race.
-- On long tasks where the user might be away, prefer `send_notification` with `context.askQuestion` over a blocking `ask_user`. The user can answer from the notification page while the question remains live. Poll the returned `linkedCorrelationId` once when you need the result, then follow the returned handoff; do not promise an overnight wait or a reply after the turn ends.
+- Ask with `ask_user`, not with `send_notification` and `context.askQuestion`. Do not promise an overnight wait or a reply after the turn ends.
 - Use `cancel_question` to retract a question that is no longer needed.
 
 ## Answer surfaces and account boundaries

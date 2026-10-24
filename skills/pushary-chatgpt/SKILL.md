@@ -1,6 +1,6 @@
 ---
 name: pushary-chatgpt
-version: 0.2.0
+version: 0.3.0
 description: Reach the user on their phone through Pushary while ChatGPT or Codex works on a task. Use it to get a plan approved before starting, to ask before a step the user has not approved, and to send one summary when the work is done or fails. Use for requests such as get my approval on my phone first, ask me on my phone before anything you can't undo, I'm stepping away, ping me when it's done, send me a summary, or remind me later. Honor approvals the user already gave and follow the server's delivery policy.
 metadata:
   tags: planning, approvals, human-in-the-loop, notifications, push, chatgpt, codex
@@ -45,7 +45,7 @@ Ask for plan approval only when the user asked for it, or when the plan goes bey
 
 ## During the task: ask before a step the user has not approved
 
-Ask with `ask_user` before any of these, unless the user already approved that exact step in this conversation:
+Ask with `ask_user` before any of these, unless the user already approved it in this conversation:
 
 - **Something that cannot be undone.** Deleting, overwriting or replacing something the user made.
 - **Something that leaves this chat.** Sending an email or message, posting, publishing, or sharing with someone else.
@@ -79,9 +79,9 @@ When the work ends, send one `send_notification`:
 }
 ```
 
-Keep `title` under 60 characters and `body` under 200. Use `context.type` `task_complete`, `error` or `info`. Send at most three notifications for one task unless the user asked for more. Skip a notification for a trivial task or when the user is reading the chat. Do not add a question just to keep the turn open.
+Keep `title` under 60 characters and `body` under 180; the phone cuts the body there. Use `context.type` `task_complete`, `error` or `info`. Send at most three notifications for one task unless the user asked for more. Skip a notification for a trivial task or when the user is reading the chat. Do not add a question just to keep the turn open.
 
-When you can keep working on your own recommendation, put a choice in `context.askQuestion` on the notification instead of a separate `ask_user`. The call does not wait. Read the answer later from the returned `linkedCorrelationId` with `wait_for_answer`. The embedded question closes after 10 minutes, so use it only for a choice you can make yourself if the user does not answer. When the work the user asked for is done, report it and stop; do not ask what to do next unless they asked you to.
+When you would take your own recommendation without asking at all, and the step is reversible, spends nothing and stays inside what the user asked for, do not ask. Make the choice and list it in your summary so the user can change it. An irreversible step, spending money or a decision outside your authority still gets a question unless the user already approved it. Ask with `ask_user`, not with `context.askQuestion`. When the work the user asked for is done, report it and stop; do not ask what to do next unless they asked you to.
 
 ## Waiting for an answer
 
