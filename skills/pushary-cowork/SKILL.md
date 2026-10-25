@@ -1,6 +1,6 @@
 ---
 name: pushary-cowork
-version: 0.7.0
+version: 0.7.1
 description: Use Pushary in Claude Chat, Cowork, or Claude Code when the user asks for phone updates, a missing decision blocks work, an action needs approval outside existing authorization, or meaningful unattended work finishes or fails. Send task updates and confirm, choice, or text questions to the user's connected devices, then read the returned answer and handoff. Requires the Pushary connector and a paid Pushary account. This skill does not install native permission hooks.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop, cowork, claude, alerts, approvals
@@ -42,7 +42,7 @@ Do not create a question just to keep the turn alive or ask for optional feedbac
 
 Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Keep waiting with the same correlationId while pending. A poll ending does not expire the question; never cancel just because a poll returned without an answer. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
 
-Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
+Delivery is controlled by the user's policy: `push_first` (When away) still sends your questions to the phone and lets only hook approvals skip it while the user is at the computer, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
 - If a poll ends while pending, keep waiting with the same question id. Cancel only when explicitly handing off or the answer is no longer needed. If cancellation returns `handoffAction: "stop"`, stop. Otherwise, if cancellation returns false, poll once for 1 second and honor the answer that won the race.
 - Ask with `ask_user`, not with `send_notification` and `context.askQuestion`. Do not promise an overnight wait or a reply after the turn ends.
@@ -53,13 +53,13 @@ Delivery is controlled by the user's policy: `push_first` uses presence, `push_o
 | Surface | What the user can do |
 | --- | --- |
 | Mobile app | Answer confirm, select and input questions. Supported confirm notifications offer approve/deny actions on the lock screen; arbitrary choices and text open the app. |
-| Mac notch | Answer personal account questions with confirm, select, input and question-set controls, including keyboard controls. Presence and delivery policy determine when the phone is also reached. |
+| Mac notch | Answer confirm, select, input and question-set questions, including keyboard controls. Presence and delivery policy determine when the phone is also reached. |
 | Slack | Answer through buttons, menus or text modals when the integration and intended recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notification delivery requires permission. |
 
 Personal setup connects the operator's devices. The operator installs the Pushary phone or Mac app from https://pushary.com/download and signs in with the same account as the connector. In Chat or Cowork, connect Pushary from the plugin's Connectors tab or add `https://pushary.com/api/mcp/mcp` under Customize > Connectors. In Claude Code, check the connector with `/mcp` and follow its OAuth sign-in prompt. No CLI installer or API key is needed. Ask one harmless test question in the app being tested, answer it from Pushary, and verify Claude receives the answer. CLI doctor checks do not verify a hosted connector. Test phone fallback while away from the Mac; do not infer delivery from a successful API call alone.
 
-Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch currently uses the personal account/session API; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
+Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. They answer on their enrolled phone, and in the Mac notch once they connect the Mac from the phone app. See https://pushary.com/docs/agents/embed for Partner setup.
 
 ## Conventions
 

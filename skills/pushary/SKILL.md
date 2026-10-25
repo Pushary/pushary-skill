@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.13.0
+version: 0.13.1
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a person who may not be at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, or do not wait for me, or wants a long task to run unattended. Ask yes/no, multiple choice or free-text questions on their phone and get the answer back, and send an update when a task finishes or fails. Use these tools proactively, without waiting to be asked. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Gemini CLI, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted, paid service; web and native store checkout have different price and trial terms.
 metadata:
   hermes:
@@ -32,7 +32,7 @@ Nobody has to say "ping me". When one of these moments is true, act now: ask in 
 - **Another skill tells you to confirm with the user.** That instruction assumes someone watches the terminal. Often nobody does. Ask it where the user is, as for every moment here, so the run continues when they answer.
 - **A long task finished or failed and nobody is watching.** Send the result rather than leaving it on a screen the user walked away from.
 
-When no device is connected, follow the handoff in the result. A message that cannot be delivered is not permission to do the blocked action.
+When no device is connected, follow the handoff in the result and keep doing approved work that does not depend on the answer. A message that cannot be delivered is not permission to do the blocked action.
 
 ## Ask Less, Ask Well
 
@@ -85,8 +85,9 @@ A round holds every decision whose inputs you already know. A decision that depe
 - **Silence is not agreement.** No answer approves nothing. An irreversible step, spending money or a decision outside your authority still gets its own question unless the user already approved it.
 - **One `select` with the real options beats three `confirm` questions.**
 - **Ask at the boundary, not once for each item.** Ask about deleting files, not about each file.
-- **Send at most three pushes per task** unless the user asks for more. Questions asked as chat text in the terminal do not count. The cap never waives an approval: past it, ask in the current client and wait.
-- **When the requested work is done, report it and stop.** Do not ask what to do next unless the user asked you to.
+- **Write for someone glancing at a phone.** Name the exact thing and the number: "Delete the 3 unused migration files?" beats "Should I clean up?"
+- **Send at most three pushes per task** unless the user asks for more. Questions asked as chat text do not count. The cap never holds back an approval the run cannot continue without: ask it where the user is.
+- **When the requested work is done, report it and stop.** Do not ask what to do next unless the user asked you to. Work blocked on a choice only the user can make is not done: ask that choice.
 
 ## Setup
 
@@ -133,16 +134,24 @@ When Node and npm are available, run `npx pushary@latest status --json`. The exi
 | --- | --- |
 | 0 | Ready. If the JSON says `connectedThroughMacApp: true`, the Mac app holds the key: check the account, plan and phone in the Pushary Mac app. |
 | 1 | The command failed. |
-| 2 | A malformed key or an unknown flag. |
+| 2 | A malformed key, an unknown flag, or a Node version that is too old. |
 | 3 | Not set up on this machine. |
 | 4 | The key was rejected or signed out. |
-| 5 | A problem was found: two keys that disagree, or no active plan. Read the JSON. |
-| 6 | Nothing proves a question reaches this user: no phone of theirs is paired, or only a teammate's devices are. Have them install the Pushary app from https://pushary.com/download and sign in to the same account, then run `status --json` again. |
-| 8 | Pushary could not be reached. |
+| 5 | Two keys that disagree, or no active plan. |
+| 6 | Nothing proves a question reaches this user: no phone of theirs is paired, or only a teammate's devices are. |
+| 8 | Pushary could not be reached. Check again later; do not run setup. |
 
-For `mac-app` without Node or npm, open the Pushary Mac app. Check the account, the plan and the Agents connection there, and connect or repair agents in the app. Do not install Node to inspect a native setup, and do not claim an exit code when no CLI ran.
+For any code but 0 or 8, run `npx pushary@latest status` without `--json` and follow the steps it prints, with these changes:
 
-To add an agent to a working install, run `npx pushary@latest setup --agents <id>`. It reuses the key and does not pair again. If the Mac app owns this machine's hooks, setup keeps them; point the user at the Pushary app for hook changes.
+- Run a printed `pushary …` command as `npx pushary@latest …`, and a printed setup as in "Running setup yourself". Where it says to get or copy a key, run setup instead. Never ask the user for one.
+- **`mac-app` printed and the code is 3:** have the user sign in to the Pushary Mac app, then check again.
+- **Status says the key was signed out on this Mac:** have the user sign in again to the Pushary Mac app, open Settings > Agents and press Repair on every agent that offers it (if none does yet, have them close Settings, wait a minute and open it again), then run setup as in "Running setup yourself". It reuses the key the app wrote into the agents' settings; if the first one it finds does not work, it pairs instead. If status then shows the old key `from $PUSHARY_API_KEY`, have the user restart this agent from a new terminal.
+- **The Key line says `from $PUSHARY_API_KEY`, the code is 2 or 4, and status does not say signed out on this Mac:** this shell exports a bad key, and it wins over any key setup saves. Run setup at most once. If status still fails or shows `Key drift`, have the user delete every `export PUSHARY_API_KEY` line that still sets the old key from their shell startup files, such as ~/.zshrc, ~/.zprofile, ~/.bashrc and ~/.bash_profile, including any setup said it could not update, then restart this agent from a new terminal.
+- **Code 6, instead of the steps status prints:** have them install the Pushary app from https://pushary.com/download, sign in to the account this machine uses and allow notifications, then check again. A user who does not use a phone always gets 6: say so and stop. If it still says 6, offer to pair the phone: in the Pushary Mac app under Settings > Phone > Pair when `mac-app` printed, otherwise with setup `--connect app` as in "Running setup yourself", which creates a new key.
+
+For `mac-app` without Node or npm, or with a Node version the CLI refuses, open the Pushary Mac app. Check the account, the plan and the Agents connection there, and connect or repair agents in the app. Do not install Node to inspect a native setup, and do not claim an exit code when no CLI ran.
+
+To add an agent to a working install, run `npx pushary@latest setup --agents <id>`; it reuses the key and does not pair again. When status reported `connectedThroughMacApp: true`, connect the agent in the Pushary Mac app instead, except Cline. Setup keeps hooks the Mac app owns; pass `--take-over-hooks` only when the user wants the command line to own them.
 
 ### Branch 2. `Darwin`, no key, no `mac-app`
 
@@ -166,18 +175,18 @@ In PowerShell, type `npx.cmd` instead of `npx`. Node 20.17+, 22.13+ or 23.5+ is 
 
 ### Running setup yourself
 
-Before you run it, tell the user what it does: it pairs their phone, then configures MCP, hooks and the skill for the agents you name. It also installs the `pushary` command globally, starts a background service so the phone can start sessions (`--control off` skips it), and turns on session history (`--transcripts off` turns it off). It needs a paid plan; the phone app shows the price and any trial.
+Before you run it, tell the user what it does: it pairs their phone, then configures MCP, hooks and the skill for the agents you name. It may also install the `pushary` command globally and start a background service so the phone can start sessions (`--control off` skips it). It turns on session history (`--transcripts off` turns it off). It needs a paid plan; the phone app shows the price and any trial.
 
-1. **Name the agents.** Pass `--agents` with your own id: `claude_code`, `codex`, `cursor`, `gemini_cli`, `vscode`, `opencode`, `hermes`, or a comma-separated list. Without it, setup run from an agent's shell configures every agent it detects.
+1. **Name the agents.** Pass `--agents` with your own id: `claude_code`, `codex`, `gemini_cli`, `cursor`, `vscode`, `opencode`, `hermes`, `cline`, `antigravity_cli`, `qwen_code`, `codebuddy`, `qoder`, `droid`, `devin`, `grok`, `fx` or `custom`, or a comma-separated list. `custom` (Windsurf or any other MCP client) gets a key like any other id but configures no client: it prints the server URL and an `Authorization: Bearer $PUSHARY_API_KEY` header. Add both to that client's MCP settings before you report it connected; if the client cannot read environment variables, use the key saved in ~/.pushary/config.json. Without `--agents`, setup run from an agent's shell configures every agent it detects.
 2. **Run it in the background.** It waits up to 15 minutes for the phone, longer than most agents let a foreground command run, and a killed setup kills the pairing code with it. Start it as a background process that writes to a log, read the short link, the QR and the fingerprint from that log, show them to the user as they print, and keep checking the log until setup exits. Do not summarise them. The link survives where the QR renders badly. Start while the user can still read your messages: until they approve, nothing is configured and you have no other way to reach them.
 3. **Walk the user through it.** They open the link or scan the QR. If they do not have the Pushary app, they install it from https://pushary.com/download, then return to the original link and tap Open Pushary; they do the same if the app restarts during sign-in or payment. The app shows a fingerprint that must match the one in your output. On a first install the app asks them to sign in and choose a plan. Then they approve, and setup finishes on its own. If the code expires, run setup again.
-4. **Report the result plainly.** If setup exits without pairing, nothing was configured. Say so.
+4. **Report the result plainly.** If setup exits without pairing, nothing was configured. Say so. If it exits 6, the agents are configured but nothing proves a phone of theirs can receive yet: follow code 6 above, but if setup just paired, do not pair again.
 
-Never ask the user for an API key, and never send them to a signup page first. If `PUSHARY_API_KEY` is already set or an agent configuration holds a key, setup uses it and skips pairing.
+Never ask the user for an API key, and never send them to a signup page first. If a working key is already set or stored on this machine, setup reuses it and skips pairing. `--connect app` always pairs and creates a new key unless `--key` or `--key-stdin` is passed. If this machine had a key, tell the user it stays active until they revoke it under API keys at https://pushary.com/dashboard/agent/settings.
 
 Manual MCP configuration also works, but it needs a key from https://pushary.com/sign-up?utm_source=skill&utm_medium=setup. Prefer setup.
 
-Setup itself sends only a test notification, because it cannot tell whether the user is there to answer. Right after it finishes, while the user still has their phone in hand, test a question and answer: for a CLI setup, run `npx pushary@latest doctor --roundtrip`. A returned answer proves the question path, not hook enforcement. Restart the agent and follow its approval check at https://pushary.com/docs/agents/supported-agents. For a Mac app setup, use the app's connection tests and ask one harmless question from the current agent.
+Setup itself sends only a test notification, because it cannot tell whether the user is there to answer. Right after it finishes, while the user still has their phone in hand, test a question and answer: for a CLI setup, run `npx pushary@latest doctor --roundtrip`. It needs a CLI key, sends a test push and one question, and waits about a minute for the answer. Its exit code also covers unrelated checks, so read the Synthetic answer test line. A returned answer proves the question path, not hook enforcement. Restart the agent and follow its approval check at https://pushary.com/docs/agents/supported-agents. For a Mac app setup, use the app's connection tests and ask one harmless question from the current agent.
 
 ## Pricing and Free Alternatives
 
@@ -191,7 +200,7 @@ Your client already holds each tool's schema, with every parameter and returned 
 
 ### ask_user
 
-Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 known options, and `input` when the options cannot be listed. A question stays open until it is answered or cancelled, except through a connector, by signing in or with a connector key (Claude.ai, Claude Desktop, Cowork, ChatGPT, Grok Bot, Cline signed in, or Claude Code through the Pushary for Claude plugin): then it closes 10 minutes after it is sent. One call waits at most 55 seconds and may return at once. The user's delivery mode decides how long:
+Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 known options, and `input` when the options cannot be listed. A question stays open until it is answered or cancelled, except one asked through a connector, by signing in or with a connector key, which closes 10 minutes after it is sent: Claude.ai, Claude Desktop, Cowork, ChatGPT, Grok Bot, signed-in Cline, and the Pushary for Claude and Pushary for Cowork plugins. One call waits at most 55 seconds and may return at once. The user's delivery mode decides how long:
 
 | Mode | The phone | The call |
 |---|---|---|
@@ -200,9 +209,9 @@ Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 know
 | **Alert only** (`notify_only`) | Told, not asked | Returns at once with `status: "notified"` |
 | **In agent** (`terminal_only`) | Nothing is sent | Returns at once with `status: "terminal"` |
 
-`timeoutMs` sets this call's wait, longer or shorter than the policy, up to 55000. Read `answered`; it is absent when you pass `wait: false`, which returns at once with `status: "pending"`. When work that does not depend on the answer remains, pass `wait: false`, do that work, then poll with `wait_for_answer`.
+`timeoutMs` sets this call's wait, longer or shorter than the policy, up to 55000. Read `answered`; it is absent when you pass `wait: false`, which returns at once, normally with `status: "pending"`. When work that does not depend on the answer remains, pass `wait: false`, do that work, then poll with `wait_for_answer`.
 
-**Approvals.** Pass `toolName`, `toolTarget` (the command head) and the full command in `actionBody` whenever the question approves a tool call, and never leave them out to make a question approvable. When the command is destructive, such as a recursive delete, a force-push, a hard reset, a dropped table, a deploy or a publish, the phone offers only deny and `defer` ("Handle on your machine"). `defer` on any question means the user will decide at the computer: treat it as no answer and ask in the current client.
+**Approvals.** Pass `toolName`, `toolTarget` (the command head) and the full command in `actionBody` whenever the question approves a tool call, and never leave them out to make a question approvable. When the command is destructive or ships something, such as a recursive delete, a force-push, a hard reset, a dropped or truncated table, `sudo`, or any deploy, publish or release, the phone offers only deny and `defer` ("Handle on your machine"). `defer` on any question means the user will decide at the computer: treat it as no answer and ask in the current client.
 
 **Answers.** `value` is "yes" or "no" for confirm, the chosen option for select, and the typed text for input. Read `note` too: a denial with a note carries the reason or a condition. A select or input value containing "yes" is answer data, not approval of a separate action.
 
@@ -228,13 +237,15 @@ Read `answered`, `status` and `handoffAction` on every response. Follow `handoff
 
 **Moving a live question to the current chat:** cancel it first. If cancellation returns `handoffAction: "stop"`, stop. Otherwise, if it returns `cancelled: false`, poll once for 1 second and honor the answer that won the race. If the user answers in chat while a phone question is live, do the same before acting.
 
-`noDevices: true` means nothing could receive the question: tell the user what the `warning` field says to connect, and follow the handoff. `paused: true` means phone approvals for this session are paused after earlier ones went unanswered: say so, and follow the handoff.
+`noDevices: true` means nothing could receive the question: tell the user what the `warning` field says to connect, and follow the handoff. `paused: true` means this question was not pushed because earlier phone approvals went unanswered: three in this session, or 20 on this workspace in 14 days. Say so, and follow the handoff. A session pause sends the phone one notice; approving it resumes.
 
 ### send_notification
 
 Tells the user something. Nothing is awaited. Send it for a requested update or a meaningful result the user is not watching, not for trivial steps or a report someone is already reading.
 
 Always pass `context.type`: `task_complete`, `error` or `info`. It marks the notification as a task update, so the user's setting for where updates land can route it. Keep the title under 60 characters and the body under 180; the phone cuts the body there. Put detail in `context`.
+
+Only `sent` above 0 says a device was reached. `sent: 0` or a `suppressed` reason means no phone or browser got a push: tell the user what `warning` or `suppressed` says, not that you notified them. `status: "recorded"` means the turn's completion update was recorded, not that a device got it: only the first one per turn is sent, following the user's update settings. Do not tell the user you notified them on `recorded` alone. `status: "ignored"` means nothing was sent.
 
 ```json
 {
@@ -262,7 +273,7 @@ Retracts a pending question, for example when you found the answer another way. 
 
 ### schedule_reminder
 
-When the user asks "remind me later", set a one-time personal reminder with `body` and either `inMinutes` or `at` (an ISO timestamp with an explicit UTC offset or Z). Confirm the returned `fireAt` in their local time and never guess their timezone. For example, `{"body":"Check the deploy","inMinutes":30}`. It reaches the user after you exit, but it does not schedule agent work. Call it with no arguments to list pending reminders, or pass `cancelReminderId` to cancel one; `cancelled:false` means it may already be dispatching. Limits: 30 days ahead, 25 pending per user. Do not use `ask_user` for reminders.
+When the user asks "remind me later", set a one-time personal reminder with `body` (180 characters at most, or the call fails) and either `inMinutes` or `at` (an ISO timestamp with an explicit UTC offset or Z). Confirm the returned `fireAt` in their local time and never guess their timezone. For example, `{"body":"Check the deploy","inMinutes":30}`. It goes to their phone and the Pushary Mac app; with no phone connected, only to the Mac app if they have one. Tell the user any `warning` in the result. It usually arrives within a minute of `fireAt`, even after you exit. It does not schedule agent work. Call it with no arguments to list pending reminders, or pass `cancelReminderId` to cancel one; `cancelled: false` means nothing was cancelled: it was not found, already settled, or already sending. Limits: 30 days ahead, 25 pending per user in each workspace. Do not use `ask_user` for reminders.
 
 ### propose_scope
 
@@ -274,7 +285,7 @@ Agree the boundary of a run once, before the first edit. The user sees the paths
 
 **Write paths as globs.** The matcher compares text. A word like `hubspot` matches no file and makes every edit ask; it belongs in `promises`. Write `docs/**`, not `docs`. Letter case matters. Use forward slashes and no leading `./`. For a run that changes no files, call it with no paths and put the whole boundary in `promises`.
 
-**Read the result.** An empty `enforces` means nothing is checked automatically: tell the user. `hookSeen: false` means no hook has reported this `sessionId`, so the contract will never be found: fix the id or say the boundary is only a promise. Answered but not `ratified` means the user declined: ask which boundary they want. Use the `sessionId` your client reports for this run. If it reports none and you have `list_sessions`, call it and take the session whose working directory matches yours with the newest `lastSeenAt`. If another live session shares that folder, on this machine or another, or you cannot tell, skip the scope and tell the user the boundary is only a promise. Never invent an id.
+**Read the result.** An empty `enforces` means nothing is checked automatically: tell the user. `hookSeen: false` means no hook has reported this `sessionId`, so the contract will never be found: fix the id or say the boundary is only a promise. Answered but not `ratified` means the user declined: ask which boundary they want. A yes typed in the chat does not ratify a scope; the boundary is then only a promise. Use the `sessionId` your client reports for this run. If it reports none and you have `list_sessions`, call it and take the session whose working directory matches yours with the newest `lastSeenAt`. If another live session shares that folder, on this machine or another, or you cannot tell, skip the scope and tell the user the boundary is only a promise. Never invent an id.
 
 A scope lasts for the session, up to 12 hours, and ends at session end. A later ratified proposal replaces it.
 
@@ -285,18 +296,18 @@ Read-only. Shows your live agent sessions and any questions still waiting. If an
 ## Limits
 
 - 8 open questions per agent session and 25 per workspace. When a question is refused for this, answer or cancel an open one.
-- 10 notifications per 5 minutes per workspace.
+- 10 notifications per 5 minutes per workspace. Every `schedule_reminder` call, including a list or a cancel, counts toward it.
 
 ## Answer Surfaces and Account Boundaries
 
 | Surface | What the user can do |
 | --- | --- |
 | Mobile app | Answer confirm, select and input questions. Confirm notifications offer approve and deny on the lock screen, except for risky commands. Choices and text open the app. |
-| Mac notch | Answer personal account questions with confirm, select, input and question-set controls, including keyboard controls. |
+| Mac notch | Answer confirm, select, input and question-set questions, including keyboard controls. |
 | Slack | Answer through buttons, menus or text modals when the integration and recipient are configured. |
 | Browser | Open the decision page as a fallback; browser notifications need permission. |
 
-Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch uses the personal account; do not promise a Partner customer inbox on Mac. See https://pushary.com/docs/agents/embed for Partner setup.
+Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. They answer on their enrolled phone, and in the Mac notch once they connect the Mac from the phone app. See https://pushary.com/docs/agents/embed for Partner setup.
 
 ## Identifying Your Agent
 

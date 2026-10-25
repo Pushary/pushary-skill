@@ -1,6 +1,6 @@
 ---
 name: pushary-chatgpt
-version: 0.3.0
+version: 0.3.1
 description: Reach the user on their phone through Pushary while ChatGPT or Codex works on a task. Use it to get a plan approved before starting, to ask before a step the user has not approved, and to send one summary when the work is done or fails. Use for requests such as get my approval on my phone first, ask me on my phone before anything you can't undo, I'm stepping away, ping me when it's done, send me a summary, or remind me later. Honor approvals the user already gave and follow the server's delivery policy.
 metadata:
   tags: planning, approvals, human-in-the-loop, notifications, push, chatgpt, codex
@@ -93,7 +93,7 @@ If your reply has to end while a question is still pending, say so plainly: the 
 
 If the user answers in chat instead, and the question is still live on the phone, call `cancel_question` before acting. If cancellation returns `handoffAction: "stop"`, stop. If it returns `cancelled: false`, call `wait_for_answer` once for one second and honor whichever answer won.
 
-Delivery is the user's setting, not yours: `push_first` uses presence, `push_only` sends a push every time, `notify_only` leaves the decision in the current client, and `terminal_only` sends no push. Do not override the mode or send the same question on every surface. Show `answerUrl` when it is present and useful; it is not on every response.
+Delivery is the user's setting, not yours: `push_first` (When away) still sends your questions to the phone and lets only hook approvals skip it while the user is at the computer, `push_only` sends a push every time, `notify_only` leaves the decision in the current client, and `terminal_only` sends no push. Do not override the mode or send the same question on every surface. Show `answerUrl` when it is present and useful; it is not on every response.
 
 ## When Pushary cannot reach the user
 
@@ -114,8 +114,8 @@ Use `propose_scope` when the user asks for an agreed boundary, or one is still o
 | Surface | What the user can do |
 | --- | --- |
 | Mobile app | Answer confirm, select and input questions. Supported confirm notifications offer approve and deny actions on the lock screen; choices and text open the app. |
-| Mac notch | Answer personal account questions with confirm, select, input and question-set controls. Presence and delivery policy decide when the phone is also reached. |
+| Mac notch | Answer confirm, select, input and question-set questions. Presence and delivery policy decide when the phone is also reached. |
 | Slack | Answer through buttons, menus or text forms when the integration and the right recipient are set up. |
 | Browser | Open the decision page as a fallback. Browser notifications need permission. |
 
-Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. The Mac notch uses the personal account; do not promise a Partner customer inbox on Mac. Partner setup: https://pushary.com/docs/agents/embed.
+Partner customers use scoped enrollment links issued by their application. Do not enroll them into the operator's account or send their decisions through personal tools. They answer on their enrolled phone, and in the Mac notch once they connect the Mac from the phone app. Partner setup: https://pushary.com/docs/agents/embed.

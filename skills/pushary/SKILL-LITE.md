@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.7.0
+version: 0.7.1
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a human and nobody is at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says ping me on my phone, notify me when my agent needs me, approve from my phone, or run this overnight. Ask questions, send alerts, get answers from connected devices.
 metadata:
   tags: notifications, push, mcp, human-in-the-loop
@@ -67,6 +67,6 @@ Read-only: see your live agent sessions and pending questions (no notification s
 
 Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. Only `pending` is live; expired, cancelled, missing and unavailable are not new timeouts. Keep waiting with the same correlationId while pending. A poll ending does not expire the question; never cancel just because a poll returned without an answer. Before moving a live question to the current chat, cancel it. If cancellation says `stop`, stop; if it loses a race, poll once for one second and honor the winning answer. Silence is never consent. A select or input value containing “yes” is answer data, not approval of a separate action.
 
-Delivery is controlled by the user's policy: `push_first` uses presence, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
+Delivery is controlled by the user's policy: `push_first` (When away) still sends your questions to the phone and lets only hook approvals skip it while the user is at the computer, `push_only` requests push every time, `notify_only` leaves the decision in the current client, and `terminal_only` avoids push. Do not override the mode or duplicate a question on every surface. The runtime owns delivery, expiry and settlement; do not claim that a reply can restart an ended agent turn.
 
-Confirm notifications can offer lock-screen actions; arbitrary choices and text open the app. Mac notch answers belong to the personal account, not Partner customer enrollment. A completed turn cannot be restarted by a late phone reply. Notify only on meaningful unattended results or requested updates.
+Confirm notifications can offer lock-screen actions; arbitrary choices and text open the app. Partner customers answer on their enrolled phone, and in the Mac notch once they connect the Mac from the phone app. A completed turn cannot be restarted by a late phone reply. Notify only on meaningful unattended results or requested updates.

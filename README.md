@@ -98,7 +98,7 @@ Install [Pushary for Mac](https://pushary.com/download), sign in with the same p
 | Surface | Answers |
 | --- | --- |
 | Mobile | Confirm, choice and text in the app. Supported confirm notifications expose lock-screen approve/deny; arbitrary choices and text open the app. |
-| Mac notch | Personal account questions, including keyboard answering. No Partner customer inbox is currently provided. |
+| Mac notch | Questions for the signed-in account, including keyboard answering, and Partner customers' questions once they connect the Mac from their phone. |
 | Slack | Buttons, choice menus and text modals when the integration and recipient are configured. |
 | Browser | Decision-page fallback and browser notifications when permission is enabled. |
 
