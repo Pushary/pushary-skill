@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Pushary/pushary",
-  "title": "Pushary",
-  "description": "The decision layer for AI agents. Your agent asks, a person approves or denies on their phone.",
-  "version": "1.5.1",
+  "title": "Pushary: human-in-the-loop for AI agents",
+  "description": "Human-in-the-loop for AI agents: ask a person and get approvals or answers by push notification.",
+  "version": "1.5.2",
   "websiteUrl": "https://pushary.com/?utm_source=mcp-registry&utm_medium=integration-directory",
   "repository": {
     "url": "https://github.com/Pushary/pushary-skill",

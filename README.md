@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">Pushary Agent Skill</h1>
+  <h1 align="center">Pushary: human-in-the-loop for AI agents</h1>
   <p align="center">
     Push notifications and human-in-the-loop for AI agents. Approve from your phone.
     <br />
@@ -32,6 +32,7 @@ This browser demo uses polling and temporary state, not real push delivery or th
 | An enforced tool approval in the Vercel AI SDK | [Runnable AI SDK example](https://github.com/Pushary/pushary-ai-sdk/tree/main/examples) |
 | A LangGraph workflow that branches on a human decision | [Runnable LangGraph example](https://github.com/Pushary/pushary-langgraph/tree/main/examples) |
 | Another agent framework | [All Pushary integrations](https://github.com/Pushary) |
+| When an agent should stop and ask a person, and how to add that step in any framework | The [`pushary-human-in-the-loop` skill](skills/pushary-human-in-the-loop/SKILL.md) |
 
 The skill and adapters are MIT-licensed. Hosted phone delivery requires a Pushary
 account; embedding approvals for your own users requires Partner access.
