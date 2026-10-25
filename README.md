@@ -16,7 +16,7 @@
   <a href="https://skills.sh/Pushary/pushary-skill/pushary"><img src="https://img.shields.io/badge/skills.sh-listed-brightgreen" alt="skills.sh" /></a>
   <a href="https://www.npmjs.com/package/pushary"><img src="https://img.shields.io/npm/v/pushary" alt="npm" /></a>
   <a href="https://pypi.org/project/hermes-plugin-pushary/"><img src="https://img.shields.io/pypi/v/hermes-plugin-pushary" alt="PyPI" /></a>
-  <a href="https://smithery.ai/servers/aadil/pushary"><img src="https://smithery.ai/badge/aadil/pushary" alt="Smithery" /></a>
+  <a href="https://lightnow.ai/servers/io.github.Pushary/pushary"><img src="https://lightnow.ai/badge/io.github.Pushary/pushary" alt="LightNow capabilities" /></a>
   <a href="https://glama.ai/mcp/servers/Pushary/pushary-skill"><img src="https://glama.ai/mcp/servers/Pushary/pushary-skill/badges/score.svg" alt="Glama score" /></a>
 </p>
 
