@@ -1,6 +1,6 @@
 ---
 name: pushary-human-in-the-loop
-version: 0.1.0
+version: 0.1.1
 description: Design and build a human-in-the-loop (HITL) approval step into an AI agent or an agent product. Use this skill when you are writing or changing agent code and need to decide which actions should ask a human first, who answers, which question type to use, how long to wait and what happens when nobody answers, or when you are adding approval to LangGraph, the Vercel AI SDK, the OpenAI Agents SDK, Mastra, CrewAI, Pydantic AI, an MCP client or a REST backend. Explains what framework pauses such as LangGraph interrupt() do and do not do, and how to ask a human for approval by push notification on their phone with Pushary and get the answer back. Use it for requests such as add an approval step to my agent, require human sign-off before this tool runs, add human review to my LangGraph graph, or let my users approve what my agent does. For an agent that already has the Pushary tools and needs to ask its own user now, use the pushary skill instead.
 metadata:
   hermes:
@@ -43,7 +43,7 @@ Do not ask when a file, a command or a lookup can settle it. That is a fact, not
 
 Only a `confirm` answered yes is permission. A `select` or `input` answer is data, even when its text is "yes". Write the question so it can be answered from a lock screen: name the action, the target and the effect. "Refund $480 to order #4471?" works. "Proceed?" does not. Put background in a context field. When the person picks between known options, ask one `select` instead of several `confirm` questions, and keep `confirm` for the permission itself.
 
-**How long to wait.** One request should not hold for long. Pushary caps each wait at 55 seconds. For a longer wait, save the run, let the request end, and resume from a signed callback or a poll. With the decisions API, set `expiresInSeconds` so a late answer cannot approve work that has moved on. Cancel a REST or MCP question that no longer applies.
+**How long to wait.** One request should not hold for long. Pushary caps each REST wait at 55 seconds and each MCP call at 48. For a longer wait, save the run, let the request end, and resume from a signed callback or a poll. With the decisions API, set `expiresInSeconds` so a late answer cannot approve work that has moved on. Cancel a REST or MCP question that no longer applies.
 
 **What happens when nobody answers.** Nothing runs. A timeout, an expiry, a cancellation or a person with no connected device is a no, never an approval. Tell the agent it was not approved, so it stops instead of retrying. When you retry a request, reuse its idempotency key so the person is not asked twice.
 
@@ -107,7 +107,7 @@ Ask with `ask_user`:
 { "question": "Deploy release 2.4.0 to production?", "type": "confirm", "context": "All checks passed on main.", "agentName": "Deploy bot - api" }
 ```
 
-One call waits at most 55 seconds and can return the answer at once. Proceed only on `answered: true` with `value: "yes"`. On `status: "pending"`, call `wait_for_answer` with the same `correlationId` and `timeoutMs: 55000`. Follow `handoffAction` when present, otherwise `nextAction`. `expired`, `cancelled`, `missing` and `unavailable` are not approval. Call `cancel_question` when the question no longer matters. The `pushary` skill has the full result table.
+One call waits at most 48 seconds and can return the answer at once. Proceed only on `answered: true` with `value: "yes"`. On `status: "pending"`, call `wait_for_answer` with the same `correlationId` and `timeoutMs: 55000`. Follow `handoffAction` when present, otherwise `nextAction`. `expired`, `cancelled`, `missing` and `unavailable` are not approval. Call `cancel_question` when the question no longer matters. The `pushary` skill has the full result table.
 
 Tell with `send_notification`:
 

@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.13.1
+version: 0.13.2
 description: Push notifications and human-in-the-loop for AI agents. Use this whenever a running agent needs a person who may not be at the terminal, such as before an irreversible or destructive action, before spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, when running unattended and you hit a genuine ambiguity, when another skill's workflow says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says things like keep going and ping me on my phone if you need anything, notify me when my agent needs me, approve from my phone, ask me questions while I am away from the terminal, run this overnight, keep working while I am in a meeting, I am stepping away, or do not wait for me, or wants a long task to run unattended. Ask yes/no, multiple choice or free-text questions on their phone and get the answer back, and send an update when a task finishes or fails. Use these tools proactively, without waiting to be asked. Every question and answer is recorded, so an unattended run stays reviewable afterwards. Works with Claude Code, Codex, Cursor, VS Code, Gemini CLI, Windsurf, Hermes, Lovable, or any MCP client; no Claude Max subscription required. Pushary is a hosted, paid service; web and native store checkout have different price and trial terms.
 metadata:
   hermes:
@@ -200,7 +200,7 @@ Your client already holds each tool's schema, with every parameter and returned 
 
 ### ask_user
 
-Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 known options, and `input` when the options cannot be listed. A question stays open until it is answered or cancelled, except one asked through a connector, by signing in or with a connector key, which closes 10 minutes after it is sent: Claude.ai, Claude Desktop, Cowork, ChatGPT, Grok Bot, signed-in Cline, and the Pushary for Claude and Pushary for Cowork plugins. One call waits at most 55 seconds and may return at once. The user's delivery mode decides how long:
+Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 known options, and `input` when the options cannot be listed. A question stays open until it is answered or cancelled, except one asked through a connector, by signing in or with a connector key, which closes 10 minutes after it is sent: Claude.ai, Claude Desktop, Cowork, ChatGPT, Grok Bot, signed-in Cline, and the Pushary for Claude and Pushary for Cowork plugins. One call waits at most 48 seconds and may return at once. The user's delivery mode decides how long:
 
 | Mode | The phone | The call |
 |---|---|---|
@@ -265,7 +265,7 @@ Ask with `ask_user`, not with `context.askQuestion`. That field remains for olde
 
 ### wait_for_answer
 
-Waits up to 55 seconds for the answer to a question that is still pending. Keep calling it with the same `correlationId` while the status is `pending`.
+Waits up to 48 seconds for the answer to a question that is still pending. Keep calling it with the same `correlationId` while the status is `pending`.
 
 ### cancel_question
 

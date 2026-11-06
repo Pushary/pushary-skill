@@ -1,6 +1,6 @@
 ---
 name: pushary-chatgpt
-version: 0.3.1
+version: 0.3.2
 description: Reach the user on their phone through Pushary while ChatGPT or Codex works on a task. Use it to get a plan approved before starting, to ask before a step the user has not approved, and to send one summary when the work is done or fails. Use for requests such as get my approval on my phone first, ask me on my phone before anything you can't undo, I'm stepping away, ping me when it's done, send me a summary, or remind me later. Honor approvals the user already gave and follow the server's delivery policy.
 metadata:
   tags: planning, approvals, human-in-the-loop, notifications, push, chatgpt, codex
@@ -85,7 +85,7 @@ When you would take your own recommendation without asking at all, and the step 
 
 ## Waiting for an answer
 
-Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. `ask_user` waits up to 55 seconds, or returns at once, depending on the user's delivery policy. When a call returns with the question still `pending`, keep waiting with `wait_for_answer` and the same `correlationId`. A poll ending does not end the question; never cancel just because a poll returned without an answer.
+Read `answered`, `status` and `handoffAction` (falling back to `nextAction`) on every response. `ask_user` waits up to 48 seconds, or returns at once, depending on the user's delivery policy. When a call returns with the question still `pending`, keep waiting with `wait_for_answer` and the same `correlationId`. A poll ending does not end the question; never cancel just because a poll returned without an answer.
 
 When you are connected by signing in to Pushary, as in ChatGPT, a question stays open for 10 minutes. Only `pending` is live. `expired`, `cancelled`, `missing` and `unavailable` are not new timeouts. An expired question was not answered: do not take the step it asked about, and follow `nextAction`, which asks you to put the question to the user in this chat instead. Silence is never consent. A `select` or `input` answer containing "yes" is the answer's data, not approval of some other action.
 
