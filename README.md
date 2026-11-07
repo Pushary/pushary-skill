@@ -16,7 +16,6 @@
   <a href="https://skills.sh/Pushary/pushary-skill/pushary"><img src="https://img.shields.io/badge/skills.sh-listed-brightgreen" alt="skills.sh" /></a>
   <a href="https://www.npmjs.com/package/pushary"><img src="https://img.shields.io/npm/v/pushary" alt="npm" /></a>
   <a href="https://pypi.org/project/hermes-plugin-pushary/"><img src="https://img.shields.io/pypi/v/hermes-plugin-pushary" alt="PyPI" /></a>
-  <a href="https://smithery.ai/servers/aadil/pushary"><img src="https://smithery.ai/badge/aadil/pushary" alt="Smithery" /></a>
   <a href="https://glama.ai/mcp/servers/Pushary/pushary-skill"><img src="https://glama.ai/mcp/servers/Pushary/pushary-skill/badges/score.svg" alt="Glama score" /></a>
 </p>
 
@@ -103,6 +102,26 @@ Install [Pushary for Mac](https://pushary.com/download), sign in with the same p
 | Browser | Decision-page fallback and browser notifications when permission is enabled. |
 
 Delivery follows your settings and presence. `push_first` uses presence, `push_only` requests push every time, `notify_only` keeps decisions in the current client, and `terminal_only` avoids push. A successful API call alone does not prove a device displayed the request.
+
+## Team setup: send a risky step to a lead
+
+On [Pushary for Teams](https://pushary.com/teams?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=team-setup), each person runs the same setup and connects their own agents. Their agents' questions go to them. An owner or admin can send a chosen step to someone else with a routing rule in **Policies**, under **Approval routing**:
+
+| Field | Example |
+| --- | --- |
+| Tool pattern | `Bash(git push:*)` |
+| Repository | `infra`, or all repositories |
+| Route to | The Admins role, or one person |
+
+Claude Code, Codex, Cursor and Gemini CLI shell calls all match a `Bash(...)` rule, so one rule covers a team that runs several agents. Whoever answers in the phone app, Mac app or dashboard is recorded by name, next to whose agent asked.
+
+What a routing rule doesn't do:
+
+- It doesn't lock the terminal. If nobody answers in time, the person running the agent can still approve at the agent's own prompt, and that yes isn't recorded.
+- The phone can only deny risky steps such as a force push or `rm -r`. Approve those in the dashboard.
+- It needs a second person. Routing starts once someone else joins the workspace.
+
+Team is $59 a month for 5 people, plus $12 for each extra person. [How a routing rule works, step by step](https://pushary.com/blog/route-claude-code-permission-prompt-to-team-lead?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=team-setup).
 
 ## Partner setup: your own customers
 
