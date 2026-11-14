@@ -12,11 +12,21 @@ npx pushary@latest setup
 
 On Windows, run `npx.cmd pushary@latest setup`.
 
-It prints a QR code first. Show the user your output and ask them to scan it
-with their phone's camera or the Pushary app, then approve on the phone. That
-pairs their Pushary app, which is what hands this machine its key. Only then
-does setup write the MCP config, hooks and permissions. Everything below is
-only for clients that cannot run a command.
+It prints a short link, a QR code and a fingerprint, then waits up to 15
+minutes for the phone. That is longer than most clients let a foreground
+command run, and a killed setup kills the pairing code with it. So run it in
+the background with its output going to a log, and keep it running. Read the
+link, the QR and the fingerprint from the log and show them to the user as
+they print. They open the link or scan the QR with their phone's camera or the
+Pushary app, sign in, check the fingerprint and approve. That pairs their
+Pushary app, which is what hands this machine its key. Keep checking the log
+until setup exits: only then has it written the MCP config, hooks and
+permissions. Everything below is only for clients that cannot run a command.
+
+To pair a phone later on a machine that already ran setup, run
+`npx pushary@latest pair` the same way: in the background, kept running until
+the phone approves, with its link, QR and fingerprint shown to the user. It
+keeps the machine's key.
 
 ## What you need for a manual install
 
