@@ -18,6 +18,7 @@
       "repository": "https://github.com/Pushary/pushary-skill",
       "license": "MIT",
       "category": "productivity",
+      "skills": ["./skills/pushary", "./skills/pushary-human-in-the-loop"],
       "keywords": [
         "notifications",
         "push",

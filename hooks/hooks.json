@@ -10,6 +10,26 @@
             "timeout": 600
           }
         ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-hook",
+            "timeout": 600
+          }
+        ]
+      },
+      {
+        "matcher": "^(WebFetch|Task|Agent)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y -p @pushary/agent-hooks@latest pushary-hook",
+            "timeout": 30
+          }
+        ]
       }
     ],
     "PostToolUse": [

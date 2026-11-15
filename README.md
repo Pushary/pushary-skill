@@ -155,9 +155,25 @@ Claude Code users can alternatively install this repository as a plugin:
 /plugin install pushary
 ```
 
-That path reads `PUSHARY_API_KEY` from the environment. Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx pushary@latest clean` before switching paths.
+The plugin carries the `pushary` and `pushary-human-in-the-loop` skills. The Hermes, ChatGPT and Cowork skills in `skills/` are for those hosts.
+
+The plugin's MCP server sends `PUSHARY_API_KEY` from the environment Claude Code starts in. Claude Code opened from the Dock, an IDE or another app does not read your shell profile, so the Pushary tools are missing and `/mcp` shows "Server rejected the configured Authorization header (HTTP 401)". Put the key in the `env` block of `~/.claude/settings.json`, which Claude Code reads however it is started:
+
+```json
+{
+  "env": {
+    "PUSHARY_API_KEY": "YOUR_API_KEY"
+  }
+}
+```
+
+Then restart Claude Code.
+
+Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx pushary@latest clean` before switching paths.
 
 The plugin starts each hook through `npx`, which is too slow for the hook that streams live reply previews to your phone, so the plugin leaves that hook out. For live previews, install with `npx pushary@latest setup` instead. Setup installs every hook as a local command.
+
+The plugin also runs the hook through `npx` before every MCP, `WebFetch`, `Task` and `Agent` call, so the kill switch and standing denies cover those tools. That adds about 2 seconds to each of those calls when npx has the package cached, and about 8 seconds when it does not, which happens on the first call after each CLI release. The `WebFetch`, `Task` and `Agent` hook may run for up to 30 seconds so that a cold start still finishes the check. Setup's local hooks do not pay the `npx` start.
 
 ---
 
