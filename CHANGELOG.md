@@ -4,6 +4,10 @@ Two plugins ship from this directory, each with its own version: the Claude Code
 
 ## Claude Code plugin
 
+### 0.2.8
+
+- `pushary` skill 0.13.5, from 0.13.4: on a `select` question, agents pass `allowOther: true` unless their options cover every answer, so you can type your own reply instead of picking the closest option. The Other box shows on the pushary.com decision page and in the Android app from 1.0.64; the iOS app gets it with 1.0.65. Other places you answer show the options as before.
+
 ### 0.2.7
 
 - The plugin runs the Pushary hook before MCP tools (`mcp__.*`) and before `WebFetch`, `Task` and `Agent`, as `npx pushary@latest setup` does. The kill switch and standing denies now stop those calls in bypass, auto and allowlist mode too, and an approval route can hold an MCP call.
@@ -13,6 +17,10 @@ Two plugins ship from this directory, each with its own version: the Claude Code
 - `pushary-human-in-the-loop` skill 0.1.2, from 0.1.0: MCP calls wait at most 48 seconds and REST waits 55; an agent runs setup in the background and keeps it running while the phone pairs.
 
 ## Codex plugin
+
+### 0.1.6
+
+- `pushary` skill 0.13.5, from 0.13.4: on a `select` question, agents pass `allowOther: true` unless their options cover every answer, so you can type your own reply instead of picking the closest option. The Other box shows on the pushary.com decision page and in the Android app from 1.0.64; the iOS app gets it with 1.0.65. Other places you answer show the options as before.
 
 ### 0.1.5
 

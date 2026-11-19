@@ -26,7 +26,7 @@ Ask a question via push and **wait for the answer** (blocks by default).
 
 Returns `{ "answered": true, "value": "yes" }` or `{ "answered": false, "timedOut": true }`.
 
-Types: `confirm` (yes/no), `select` (2-6 options via `options` array), `input` (free text).
+Types: `confirm` (yes/no), `select` (2-6 options via `options` array; add `allowOther: true` unless the options cover every answer), `input` (free text).
 
 ## send_notification
 

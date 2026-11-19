@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.13.4
+version: 0.13.5
 description: Push notifications and human-in-the-loop for AI agents. Use it whenever a running agent needs a person who may not be at the terminal, such as before an irreversible or destructive action, spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, on a genuine ambiguity while unattended, when another skill says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says keep going and ping me on my phone if you need anything, call me if you get stuck, notify me when my agent needs me, approve from my phone, ask me while I am away, run this overnight, I am stepping away, or do not wait for me. Ask yes/no, choice or free-text questions on their phone and send updates. Use these tools proactively. Works with Claude Code, Codex, Cursor, VS Code, Gemini CLI, Windsurf, Hermes, Lovable or any MCP client. Pushary is a hosted, paid service; web and native store checkout have different price and trial terms.
 metadata:
   hermes:
@@ -200,7 +200,7 @@ Your client already holds each tool's schema, with every parameter and returned 
 
 ### ask_user
 
-Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 known options, and `input` when the options cannot be listed. A question stays open until it is answered or cancelled, except one asked through a connector, by signing in or with a connector key, which closes 10 minutes after it is sent: Claude.ai, Claude Desktop, Cowork, ChatGPT, Grok Bot, signed-in Cline, and the Pushary for Claude and Pushary for Cowork plugins. One call waits at most 48 seconds and may return at once. The user's delivery mode decides how long:
+Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 known options, and `input` when the options cannot be listed. On a `select`, pass `allowOther: true` unless your options cover every answer you could act on, so the user can type their own instead of picking the closest one. A question stays open until it is answered or cancelled, except one asked through a connector, by signing in or with a connector key, which closes 10 minutes after it is sent: Claude.ai, Claude Desktop, Cowork, ChatGPT, Grok Bot, signed-in Cline, and the Pushary for Claude and Pushary for Cowork plugins. One call waits at most 48 seconds and may return at once. The user's delivery mode decides how long:
 
 | Mode | The phone | The call |
 |---|---|---|
@@ -213,13 +213,13 @@ Asks a question and waits. Use `confirm` for yes or no, `select` for 2 to 6 know
 
 **Approvals.** Pass `toolName`, `toolTarget` (the command head) and the full command in `actionBody` whenever the question approves a tool call, and never leave them out to make a question approvable. When the command is destructive or ships something, such as a recursive delete, a force-push, a hard reset, a dropped or truncated table, `sudo`, or any deploy, publish or release, the phone offers only deny and `defer` ("Handle on your machine"). `defer` on any question means the user will decide at the computer: treat it as no answer and ask in the current client.
 
-**Answers.** `value` is "yes" or "no" for confirm, the chosen option for select, and the typed text for input. Read `note` too: a denial with a note carries the reason or a condition. A select or input value containing "yes" is answer data, not approval of a separate action.
+**Answers.** `value` is "yes" or "no" for confirm, the chosen option for select (or the user's own text when you passed `allowOther`), and the typed text for input. Read `note` too: a denial with a note carries the reason or a condition. A select or input value containing "yes" is answer data, not approval of a separate action.
 
 **Phone calls.** When the user says "call me", "phone me" or "ring me if you get stuck", ask with `ask_user`; there is no separate call tool. Pushary may phone only when the reply includes `phoneCall`; without it no call is planned, so do not promise one. With it, Pushary phones the person who can answer if the question is still unanswered, and records what they say as the answer: an approval, a choice or free text. For a call to the user, `ringsAtLocal` says when it rings in their own time (tell them that, not the UTC `ringsAt`), and `waiting_for_calling_hours` means it rings when their calling hours start. While the reply is pending and has no `handoffAction`, keep waiting with `wait_for_answer` and the same `correlationId`: the spoken answer arrives there like any other. Do not cancel the question, ask it again or give up because a call is coming.
 
 ```json
 { "question": "Delete the 3 unused migration files in db/migrate/?", "type": "confirm", "context": "Cleaning up old migrations before the schema change", "toolName": "Bash", "toolTarget": "rm", "actionBody": "rm db/migrate/0003_*.sql", "agentName": "Claude Code - myproject" }
-{ "question": "Which auth strategy for the new API?", "type": "select", "options": ["JWT tokens", "Session cookies", "OAuth2 + PKCE"], "context": "Setting up auth for the new endpoints", "agentName": "Claude Code - api-server" }
+{ "question": "Which auth strategy for the new API?", "type": "select", "options": ["JWT tokens", "Session cookies", "OAuth2 + PKCE"], "allowOther": true, "context": "Setting up auth for the new endpoints", "agentName": "Claude Code - api-server" }
 { "question": "What path should the new endpoint use?", "type": "input", "placeholder": "/api/v2/...", "context": "Adding a REST endpoint for user preferences", "agentName": "Cursor - frontend" }
 ```
 
