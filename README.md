@@ -22,6 +22,8 @@
 ## Start here
 
 **[Try an approval without signing up](https://pushary.com/try?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=demo)**
+
+Already paired your phone? [Try the three-agent exercise](examples/which-agent-is-waiting.md) and see which session gets your answer.
 → connect an open phone page → approve or decline → see the agent continue or stop.
 This browser demo uses polling and temporary state, not real push delivery or the production ledger.
 
