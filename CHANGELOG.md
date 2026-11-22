@@ -30,6 +30,10 @@ Two plugins ship from this directory, each with its own version: the Claude Code
 
 ## Codex plugin
 
+### 0.1.10
+
+- `hermes` skill 0.9.3, from 0.9.2: its description says questions arrive as push notifications instead of "web push". What an agent passes and how it reads answers are unchanged.
+
 ### 0.1.9
 
 - `pushary-human-in-the-loop` skill 0.1.4, from 0.1.3: the skill no longer says a REST ask that returns `status: "stopped"` sent nothing. A stop that lands after the question was sent closes that question. Either way no question is left to poll, and the agent stops the task as before.
