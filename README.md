@@ -3,11 +3,11 @@
   <p align="center">
     Push notifications and human-in-the-loop for AI agents. Approve from your phone.
     <br />
-    <a href="https://pushary.com/ai-coding"><strong>Get started</strong></a>
+    <a href="https://pushary.com/ai-agents?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme"><strong>Get started</strong></a>
     &nbsp;&middot;&nbsp;
     <a href="https://skills.sh/Pushary/pushary-skill/pushary">Skills directory</a>
     &nbsp;&middot;&nbsp;
-    <a href="https://github.com/pushary/pushary-skill/issues">Report a bug</a>
+    <a href="https://github.com/Pushary/pushary-skill/issues">Report a bug</a>
   </p>
 </p>
 
@@ -29,7 +29,7 @@ This browser demo uses polling and temporary state, not real push delivery or th
 
 | What you want to build | Start with |
 | --- | --- |
-| Notifications and questions for a coding agent | The setup instructions below |
+| Notifications, questions and approvals for your own AI agents, such as Claude Code or Codex | The setup instructions below |
 | An enforced tool approval in the Vercel AI SDK | [Runnable AI SDK example](https://github.com/Pushary/pushary-ai-sdk/tree/main/examples) |
 | A LangGraph workflow that branches on a human decision | [Runnable LangGraph example](https://github.com/Pushary/pushary-langgraph/tree/main/examples) |
 | Another agent framework | [All Pushary integrations](https://github.com/Pushary) |
@@ -44,9 +44,30 @@ Want to help? [Public issues and patches are welcome](CONTRIBUTING.md).
 
 ---
 
-Pushary lets your coding agent send task updates and ask you for a decision on your phone. Supported host hooks also enforce approvals before an action runs.
+Pushary lets your AI agent send task updates and ask you for a decision on your phone. Supported host hooks also enforce approvals before an action runs.
 
-Hosted delivery requires a paid [Pushary plan](https://pushary.com/pricing). MCP questions and notifications work with any compatible client; enforced approvals depend on the host integration.
+Hosted delivery requires a paid [Pushary plan](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme). MCP questions and notifications work with any compatible client; enforced approvals depend on the host integration.
+
+## What you get after you sign in
+
+1. Sign in and pick a plan. New customers start with a 3-day trial.
+2. Run `npx -y pushary@latest setup` once. It connects Claude Code, Codex, Cursor, Gemini CLI, Hermes and the other agents it finds on this computer.
+3. When an agent needs a yes or an answer, the question arrives on your phone (the Pushary app for iOS and Android), on your Mac, or in the dashboard.
+4. You answer with one tap, or type a short reply, and the agent keeps going. The dashboard keeps a record of what each agent asked and what you answered.
+
+Read the [quickstart](https://pushary.com/docs/agents/quickstart?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) for each step, or see [what Pushary does for AI agents](https://pushary.com/ai-agents?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme).
+
+## Plans
+
+Each plan starts with a 3-day trial for new customers. During the trial, Agent, Agent Pro and Team include 5 call minutes.
+
+| Plan | Price | What you get |
+| --- | --- | --- |
+| [Agent](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $9.99 a month | One person and every AI agent they run. Approve, deny or answer from your phone or Mac. 10 call minutes a month. |
+| [Agent Pro](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $19.99 a month | Everything in Agent, plus unlimited notifications, budgets and priority support. 20 call minutes a month. |
+| [Team](https://pushary.com/teams?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $59 a month for 5 people, $12 for each extra person | A shared record of what your team's agents asked and who answered, with export. 60 call minutes a month. |
+
+Missed the push? Pushary can call you, by default a minute or two after the push, and read the request. You approve it, say no or tell the agent what to do. Calls need a confirmed phone number and work in English, German, French and Dutch. Calls cover Claude Code, Codex, Gemini CLI, Hermes and the other agents listed on the calls page, not yet Cursor, VS Code, OpenCode or OpenClaw. [Phone calls](https://pushary.com/calls?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) · [How calls work](https://pushary.com/docs/agents/phone-calls?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme)
 
 ## How It Works
 
@@ -54,7 +75,7 @@ Hosted delivery requires a paid [Pushary plan](https://pushary.com/pricing). MCP
 AI Agent  ->  MCP Protocol  ->  Pushary API  ->  Push Notification  ->  Your Phone
 ```
 
-Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your AI coding agent to push notifications. The agent calls Pushary's tools over the Model Context Protocol, and you receive notifications instantly on any device.
+Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your AI agent to push notifications. The agent calls Pushary's tools over the Model Context Protocol, and you receive notifications instantly on any device.
 
 **Three question types** - yes/no confirmations, multiple choice, and free text input. Your agent picks the right one for the situation.
 
@@ -83,6 +104,8 @@ npx -y pushary@latest doctor
 ```
 
 Ask your agent for one harmless test question. Confirm the intended device receives it and the answer returns to the same task.
+
+The [Claude Code guide](https://pushary.com/docs/agents/guides/claude-code?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) covers its hooks and permission modes. [Supported agents](https://pushary.com/docs/agents/supported-agents?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) shows what Pushary can do in each of the others.
 
 For Hermes specifically:
 
@@ -130,6 +153,8 @@ Team is $59 a month for 5 people, plus $12 for each extra person. [How a routing
 Personal pairing connects you, the operator. Partner integrations enroll each of your application's customers through a scoped connection link and address decisions using your stable customer ID. Customers use the mobile enrollment flow; do not route their approvals to your personal Mac inbox or share an operator API key.
 
 Start with the [Partner integration guide](https://pushary.com/docs/agents/embed), then a [Mastra agent example](https://github.com/Pushary/pushary-mastra/tree/main/examples), [AI SDK example](https://github.com/Pushary/pushary-ai-sdk/tree/main/examples) or [LangGraph example](https://github.com/Pushary/pushary-langgraph/tree/main/examples). Tools choose confirm, choice or text. Approving an action and supplying an answer are different operations; a text answer saying “yes” is not permission to execute another tool.
+
+Partner plans start at $99 a month. Your customers install the Pushary app and need no Pushary account or plan of their own. [Partner plans](https://pushary.com/partners?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) · [Try the browser demo](https://pushary.com/try?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme)
 
 ## Manual fallback
 
@@ -247,6 +272,13 @@ Read `answered`, `status` and `handoffAction` (or `nextAction`) from the tool re
 |---------|----------|-------------|
 | [`pushary`](https://www.npmjs.com/package/pushary) | npm | The Pushary CLI: setup, permission hooks and doctor. Also published as `@pushary/agent-hooks`, the same package |
 | [`hermes-plugin-pushary`](https://pypi.org/project/hermes-plugin-pushary/) | PyPI | Hermes Agent native plugin |
+
+## Related repositories
+
+- [Pushary for Cursor](https://github.com/Pushary/cursor-plugin) and [Pushary for VS Code](https://github.com/Pushary/vscode-plugin): editor plugins with approval hooks.
+- [Pushary for Claude](https://github.com/Pushary/claude-plugin): the Claude Chat and Claude Code plugin.
+- [Pushary for Mac](https://github.com/Pushary/pushary-mac): the Mac app that answers from the notch.
+- [Pushary plugin for Hermes](https://github.com/Pushary/hermes-plugin-pushary): the native Hermes Agent plugin.
 
 ## Compatible Agents
 
