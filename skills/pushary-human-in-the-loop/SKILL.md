@@ -1,6 +1,6 @@
 ---
 name: pushary-human-in-the-loop
-version: 0.1.3
+version: 0.1.4
 description: Design and build a human-in-the-loop (HITL) approval step into an AI agent or an agent product. Use this skill when you are writing or changing agent code and need to decide which actions should ask a human first, who answers, which question type to use, how long to wait and what happens when nobody answers, or when you are adding approval to LangGraph, the Vercel AI SDK, the OpenAI Agents SDK, Mastra, CrewAI, Pydantic AI, an MCP client or a REST backend. Explains what framework pauses such as LangGraph interrupt() do and do not do, and how to ask a human for approval by push notification on their phone with Pushary and get the answer back. Use it for requests such as add an approval step to my agent, require human sign-off before this tool runs, add human review to my LangGraph graph, or let my users approve what my agent does. For an agent that already has the Pushary tools and needs to ask its own user now, use the pushary skill instead.
 metadata:
   hermes:
@@ -126,7 +126,7 @@ curl -X POST https://pushary.com/api/v1/server/ask \
   -d '{"question":"Deploy the new build to production?","agentName":"Deploy bot","timeoutSeconds":50}'
 ```
 
-The call waits up to `timeoutSeconds` (1 to 55, default 30). It returns `status: "answered"` with `value`, `status: "timeout"`, or `status: "stopped"` with a `handoffAction` when the person has stopped the agent in Pushary. A stopped call sent nothing and left no question to poll, so stop the task. After a timeout, the question stays open for 10 minutes. Read it again with `GET /api/v1/server/ask/{correlationId}?wait=30`, or withdraw it with `DELETE` on the same path. A Partner workspace gets 403 `partner_decision_required` here and uses decisions instead.
+The call waits up to `timeoutSeconds` (1 to 55, default 30). It returns `status: "answered"` with `value`, `status: "timeout"`, or `status: "stopped"` with a `handoffAction` when the person has stopped the agent in Pushary. A stopped call leaves no question to poll: either none was sent, or the stop closed the one that was, so stop the task. After a timeout, the question stays open for 10 minutes. Read it again with `GET /api/v1/server/ask/{correlationId}?wait=30`, or withdraw it with `DELETE` on the same path. A Partner workspace gets 403 `partner_decision_required` here and uses decisions instead.
 
 ### Your product's end users (Partner)
 
