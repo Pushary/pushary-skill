@@ -1,6 +1,6 @@
 ---
 name: pushary-human-in-the-loop
-version: 0.1.2
+version: 0.1.3
 description: Design and build a human-in-the-loop (HITL) approval step into an AI agent or an agent product. Use this skill when you are writing or changing agent code and need to decide which actions should ask a human first, who answers, which question type to use, how long to wait and what happens when nobody answers, or when you are adding approval to LangGraph, the Vercel AI SDK, the OpenAI Agents SDK, Mastra, CrewAI, Pydantic AI, an MCP client or a REST backend. Explains what framework pauses such as LangGraph interrupt() do and do not do, and how to ask a human for approval by push notification on their phone with Pushary and get the answer back. Use it for requests such as add an approval step to my agent, require human sign-off before this tool runs, add human review to my LangGraph graph, or let my users approve what my agent does. For an agent that already has the Pushary tools and needs to ask its own user now, use the pushary skill instead.
 metadata:
   hermes:
@@ -81,7 +81,7 @@ Who answers decides which API you use:
 For Claude Code, Codex, Cursor, Gemini CLI, Hermes and other agents on your machine:
 
 ```bash
-npx pushary@latest setup
+npx -y pushary@latest setup
 ```
 
 An agent running this for someone runs it in the background with its output going to a log, and keeps it running: setup waits up to 15 minutes for the phone, and a foreground command that times out kills the pairing code. Show the person the link, the QR and the fingerprint from the log as they print, and wait for setup to exit before you report the result.

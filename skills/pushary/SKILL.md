@@ -1,6 +1,6 @@
 ---
 name: pushary
-version: 0.13.6
+version: 0.13.7
 description: Push notifications and human-in-the-loop for AI agents. Use it whenever a running agent needs a person who may not be at the terminal, such as before an irreversible or destructive action, spending money, deploying, force-pushing or deleting, when blocked on a decision outside your authority, on a genuine ambiguity while unattended, when another skill says to confirm with the user, and when a long task finishes or fails with nobody watching. Also use it when the user says keep going and ping me on my phone if you need anything, call me if you get stuck, notify me when my agent needs me, approve from my phone, ask me while I am away, run this overnight, I am stepping away, or do not wait for me. Ask yes/no, choice or free-text questions on their phone and send updates. Use these tools proactively. Works with Claude Code, Codex, Cursor, VS Code, Gemini CLI, Windsurf, Hermes, Lovable or any MCP client. Pushary is a hosted, paid service; web and native store checkout have different price and trial terms.
 metadata:
   hermes:
@@ -128,7 +128,7 @@ The stored-key test says a key is stored **and is not empty**. A logout removes 
 
 Pushary is installed. Offer no new install. Check it before reporting success.
 
-When Node and npm are available, run `npx pushary@latest status --json`. The exit code is the answer:
+When Node and npm are available, run `npx -y pushary@latest status --json`. The exit code is the answer:
 
 | Code | Meaning |
 | --- | --- |
@@ -141,17 +141,17 @@ When Node and npm are available, run `npx pushary@latest status --json`. The exi
 | 6 | Nothing proves a question reaches this user: no phone of theirs is paired, or only a teammate's devices are. |
 | 8 | Pushary could not be reached. Check again later; do not run setup. |
 
-For any code but 0 or 8, run `npx pushary@latest status` without `--json` and follow the steps it prints, with these changes:
+For any code but 0 or 8, run `npx -y pushary@latest status` without `--json` and follow the steps it prints, with these changes:
 
-- Run a printed `pushary …` command as `npx pushary@latest …`, and a printed setup as in "Running setup yourself". Where it says to get or copy a key, run setup instead. Never ask the user for one.
+- Run a printed `pushary …` command as `npx -y pushary@latest …`, and a printed setup as in "Running setup yourself". Where it says to get or copy a key, run setup instead. Never ask the user for one.
 - **`mac-app` printed and the code is 3:** have the user sign in to the Pushary Mac app, then check again.
 - **Status says the key was signed out on this Mac:** have the user sign in again to the Pushary Mac app, open Settings > Agents and press Repair on every agent that offers it (if none does yet, have them close Settings, wait a minute and open it again), then run setup as in "Running setup yourself". It reuses the key the app wrote into the agents' settings; if the first one it finds does not work, it pairs instead. If status then shows the old key `from $PUSHARY_API_KEY`, have the user restart this agent from a new terminal.
 - **The Key line says `from $PUSHARY_API_KEY`, the code is 2 or 4, and status does not say signed out on this Mac:** this shell exports a bad key, and it wins over any key setup saves. Run setup at most once. If status still fails or shows `Key drift`, have the user delete every `export PUSHARY_API_KEY` line that still sets the old key from their shell startup files, such as ~/.zshrc, ~/.zprofile, ~/.bashrc and ~/.bash_profile, including any setup said it could not update, then restart this agent from a new terminal.
-- **Code 6, instead of the steps status prints:** have them install the Pushary app from https://pushary.com/download, sign in to the account this machine uses and allow notifications, then check again. A user who does not use a phone always gets 6: say so and stop. If it still says 6, offer to pair the phone: in the Pushary Mac app under Settings > Phone > Pair when `mac-app` printed, otherwise with `npx pushary@latest pair`, which keeps this machine's key. Run it like setup: in the background with its output going to a log, kept running until it exits, showing the user the link, the QR and the fingerprint as they print. It waits up to 15 minutes for the phone, and a foreground command that times out cancels the pairing code.
+- **Code 6, instead of the steps status prints:** have them install the Pushary app from https://pushary.com/download, sign in to the account this machine uses and allow notifications, then check again. A user who does not use a phone always gets 6: say so and stop. If it still says 6, offer to pair the phone: in the Pushary Mac app under Settings > Phone > Pair when `mac-app` printed, otherwise with `npx -y pushary@latest pair`, which keeps this machine's key. Run it like setup: in the background with its output going to a log, kept running until it exits, showing the user the link, the QR and the fingerprint as they print. It waits up to 15 minutes for the phone, and a foreground command that times out cancels the pairing code.
 
 For `mac-app` without Node or npm, or with a Node version the CLI refuses, open the Pushary Mac app. Check the account, the plan and the Agents connection there, and connect or repair agents in the app. Do not install Node to inspect a native setup, and do not claim an exit code when no CLI ran.
 
-To add an agent to a working install, run `npx pushary@latest setup --agents <id>`; it reuses the key and does not pair again. When status reported `connectedThroughMacApp: true`, connect the agent in the Pushary Mac app instead, except Cline. Setup keeps hooks the Mac app owns; pass `--take-over-hooks` only when the user wants the command line to own them.
+To add an agent to a working install, run `npx -y pushary@latest setup --agents <id>`; it reuses the key and does not pair again. When status reported `connectedThroughMacApp: true`, connect the agent in the Pushary Mac app instead, except Cline. Setup keeps hooks the Mac app owns; pass `--take-over-hooks` only when the user wants the command line to own them.
 
 ### Branch 2. `Darwin`, no key, no `mac-app`
 
@@ -168,7 +168,7 @@ Or download it from https://pushary.com/download. It needs macOS 14 or later. It
 There is no Mac app for these machines. Use the command line:
 
 ```bash
-npx pushary@latest setup --agents <id>
+npx -y pushary@latest setup --agents <id>
 ```
 
 In PowerShell, type `npx.cmd` instead of `npx`. Node 20.17+, 22.13+ or 23.5+ is required. The phone app is at https://apps.apple.com/us/app/pushary/id6785677563 (iOS) and https://play.google.com/store/apps/details?id=com.pushary.app (Android).
@@ -186,7 +186,7 @@ Never ask the user for an API key, and never send them to a signup page first. I
 
 Manual MCP configuration also works, but it needs a key from https://pushary.com/sign-up?utm_source=skill&utm_medium=setup. Prefer setup.
 
-Setup itself sends only a test notification, because it cannot tell whether the user is there to answer. Right after it finishes, while the user still has their phone in hand, test a question and answer: for a CLI setup, run `npx pushary@latest doctor --roundtrip`. It needs a CLI key, sends a test push and one question, and waits about a minute for the answer. Its exit code also covers unrelated checks, so read the Synthetic answer test line. A returned answer proves the question path, not hook enforcement. Restart the agent and follow its approval check at https://pushary.com/docs/agents/supported-agents. For a Mac app setup, use the app's connection tests and ask one harmless question from the current agent.
+Setup itself sends only a test notification, because it cannot tell whether the user is there to answer. Right after it finishes, while the user still has their phone in hand, test a question and answer: for a CLI setup, run `npx -y pushary@latest doctor --roundtrip`. It needs a CLI key, sends a test push and one question, and waits about a minute for the answer. Its exit code also covers unrelated checks, so read the Synthetic answer test line. A returned answer proves the question path, not hook enforcement. Restart the agent and follow its approval check at https://pushary.com/docs/agents/supported-agents. For a Mac app setup, use the app's connection tests and ask one harmless question from the current agent.
 
 ## Pricing and Free Alternatives
 

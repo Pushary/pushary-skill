@@ -4,6 +4,10 @@ Two plugins ship from this directory, each with its own version: the Claude Code
 
 ## Claude Code plugin
 
+### 0.2.10
+
+- `pushary` skill 0.13.7, from 0.13.6, and `pushary-human-in-the-loop` skill 0.1.3, from 0.1.2: every Pushary command they give is written `npx -y pushary@latest …`, and `npx.cmd -y pushary@latest …` in PowerShell, so npm installs the CLI without stopping to ask "Ok to proceed? (y)". What an agent passes and how it reads answers are unchanged.
+
 ### 0.2.9
 
 - `pushary` skill 0.13.6, from 0.13.5: a risky step, such as a recursive delete, a force-push or a deploy, is no longer described as deny-only on the phone. The Pushary app approves one from 1.0.66 after Face ID or the phone's passcode. The lock screen, an older app and a workspace that requires the keyboard for risky steps still offer only deny and `defer` ("Handle on your machine"). What an agent passes and how it reads `defer` are unchanged.
@@ -21,6 +25,10 @@ Two plugins ship from this directory, each with its own version: the Claude Code
 - `pushary-human-in-the-loop` skill 0.1.2, from 0.1.0: MCP calls wait at most 48 seconds and REST waits 55; an agent runs setup in the background and keeps it running while the phone pairs.
 
 ## Codex plugin
+
+### 0.1.8
+
+- `pushary` skill 0.13.7, from 0.13.6, `pushary-human-in-the-loop` skill 0.1.3, from 0.1.2, and `hermes` 0.9.2, from 0.9.1: every Pushary command they give is written `npx -y pushary@latest …`, and `npx.cmd -y pushary@latest …` in PowerShell, so npm installs the CLI without stopping to ask "Ok to proceed? (y)". What an agent passes and how it reads answers are unchanged.
 
 ### 0.1.7
 

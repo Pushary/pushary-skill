@@ -7,10 +7,10 @@ Pushary is a hosted remote MCP server. There is nothing to clone, build, or run 
 One command, and it needs no account and no API key up front:
 
 ```bash
-npx pushary@latest setup
+npx -y pushary@latest setup
 ```
 
-On Windows, run `npx.cmd pushary@latest setup`.
+On Windows, run `npx.cmd -y pushary@latest setup`.
 
 It prints a short link, a QR code and a fingerprint, then waits up to 15
 minutes for the phone. That is longer than most clients let a foreground
@@ -24,7 +24,7 @@ until setup exits: only then has it written the MCP config, hooks and
 permissions. Everything below is only for clients that cannot run a command.
 
 To pair a phone later on a machine that already ran setup, run
-`npx pushary@latest pair` the same way: in the background, kept running until
+`npx -y pushary@latest pair` the same way: in the background, kept running until
 the phone approves, with its link, QR and fingerprint shown to the user. It
 keeps the machine's key.
 

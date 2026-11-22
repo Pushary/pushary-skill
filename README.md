@@ -71,7 +71,7 @@ Pushary is an [MCP server](https://modelcontextprotocol.io/) that connects your 
 Run the pairing setup in your agent's terminal:
 
 ```bash
-npx pushary@latest setup
+npx -y pushary@latest setup
 ```
 
 Install [Pushary on your phone](https://pushary.com/download), scan the QR or open the printed link, compare the fingerprints, and approve. Setup then configures the selected agent's tools, supported hooks and skill. You do not need to copy an API key first. Personal accounts require a [paid plan](https://pushary.com/pricing). Existing credentials are reused.
@@ -79,7 +79,7 @@ Install [Pushary on your phone](https://pushary.com/download), scan the QR or op
 Verify setup:
 
 ```bash
-npx pushary@latest doctor
+npx -y pushary@latest doctor
 ```
 
 Ask your agent for one harmless test question. Confirm the intended device receives it and the answer returns to the same task.
@@ -87,7 +87,7 @@ Ask your agent for one harmless test question. Confirm the intended device recei
 For Hermes specifically:
 
 ```bash
-npx pushary@latest setup --agents hermes
+npx -y pushary@latest setup --agents hermes
 ```
 
 This writes the native plugin to `~/.hermes/plugins/pushary` and turns it on with `hermes plugins enable pushary` and `hermes config set`. Restart Hermes afterward with `hermes gateway restart`. The plugin provides notification, question, wait, cancel, reminder and scope tools, plus Partner enrollment and customer-question tools. Its parameters use snake_case; use the [Hermes skill](skills/hermes/SKILL.md), not MCP parameter names. The native approval transport preserves Hermes' session and standing approvals.
@@ -171,9 +171,9 @@ The plugin's MCP server sends `PUSHARY_API_KEY` from the environment Claude Code
 
 Then restart Claude Code.
 
-Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx pushary@latest clean` before switching paths.
+Pick one installation path: installing the plugin on top of CLI-installed Claude hooks can run hooks twice. Use `npx -y pushary@latest clean` before switching paths.
 
-The plugin starts each hook through `npx`, which is too slow for the hook that streams live reply previews to your phone, so the plugin leaves that hook out. For live previews, install with `npx pushary@latest setup` instead. Setup installs every hook as a local command.
+The plugin starts each hook through `npx`, which is too slow for the hook that streams live reply previews to your phone, so the plugin leaves that hook out. For live previews, install with `npx -y pushary@latest setup` instead. Setup installs every hook as a local command.
 
 The plugin also runs the hook through `npx` before every MCP, `WebFetch`, `Task` and `Agent` call, so the kill switch and standing denies cover those tools. That adds about 2 seconds to each of those calls when npx has the package cached, and about 8 seconds when it does not, which happens on the first call after each CLI release. The `WebFetch`, `Task` and `Agent` hook may run for up to 30 seconds so that a cold start still finishes the check. Setup's local hooks do not pay the `npx` start.
 
