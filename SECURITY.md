@@ -20,13 +20,9 @@ Instead, email us at **aadil@ralphnex.com** with:
 
 ## Scope
 
-This repository contains a skill definition file (not a backend service). Security concerns most likely relate to:
+This reporting channel covers Pushary’s hosted MCP server and API, CLI, agent hooks, public plugins and skills. Include the host, package name and version when known. Remove API keys, phone numbers and customer data from the report.
 
-- MCP configuration that could expose credentials
-- Notification content that could leak sensitive data
-- Documentation that recommends insecure practices
-
-For vulnerabilities in the Pushary API or backend service itself, please report them at [pushary.com](https://pushary.com).
+[Published security advisories](https://github.com/Pushary/pushary-skill/security/advisories) · [Service status](https://pushary.github.io/pushary-status/)
 
 ## Disclosure
 

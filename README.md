@@ -44,7 +44,7 @@ Want to help? [Public issues and patches are welcome](CONTRIBUTING.md).
 
 Pushary lets your AI agent send task updates and ask you for a decision on your phone. Supported host hooks also enforce approvals before an action runs.
 
-Hosted delivery requires a paid [Pushary plan](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme). MCP questions and notifications work with any compatible client; enforced approvals depend on the host integration.
+Hosted delivery requires a paid [Pushary plan](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme). Connecting MCP lets your agent ask a person for a decision. A plain MCP client can still use its own tools independently. To require approval before a command runs, install a [supported host hook](https://pushary.com/docs/agents/supported-agents) or have your application run the protected action only after an explicit approval for that request. For host hooks, check the [timeout and handoff rules](https://pushary.com/docs/agents/unanswered) for your agent and policy.
 
 ## What you get after you sign in
 
