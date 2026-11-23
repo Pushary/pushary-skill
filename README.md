@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Pushary: human-in-the-loop for AI agents</h1>
   <p align="center">
-    Push notifications and human-in-the-loop for AI agents. Approve from your phone.
+    Get a ping when your agent needs you. Answer from your phone and the agent picks up where it paused.
     <br />
     <a href="https://pushary.com/ai-agents?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme"><strong>Get started</strong></a>
     &nbsp;&middot;&nbsp;
@@ -21,11 +21,9 @@
 
 ## Start here
 
-**[Try an approval without signing up](https://pushary.com/try?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=demo)**
+Claude Code is writing a fix when you step away. It needs to know which test to run. Pushary sends the question to your phone. With calls enabled, a missed push can turn into a phone call. Say “run the checkout test” and Claude gets your answer in the same session.
 
-Already paired your phone? [Try the three-agent exercise](examples/which-agent-is-waiting.md) and see which session gets your answer.
-→ connect an open phone page → approve or decline → see the agent continue or stop.
-This browser demo uses polling and temporary state, not real push delivery or the production ledger.
+[Pair your phone](#personal-setup-phone-first) to try this with your agent. Already paired? [Try it with three agents](examples/which-agent-is-waiting.md) and see which session gets your answer. You can also [try a browser simulation](https://pushary.com/try?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=demo) without signing up.
 
 | What you want to build | Start with |
 | --- | --- |
@@ -65,7 +63,7 @@ Each plan starts with a 3-day trial for new customers. During the trial, Agent, 
 | --- | --- | --- |
 | [Agent](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $9.99 a month | One person and every AI agent they run. Approve, deny or answer from your phone or Mac. 10 call minutes a month. |
 | [Agent Pro](https://pushary.com/pricing?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $19.99 a month | Everything in Agent, plus unlimited notifications, budgets and priority support. 20 call minutes a month. |
-| [Team](https://pushary.com/teams?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $59 a month for 5 people, $12 for each extra person | A shared record of what your team's agents asked and who answered, with export. 60 call minutes a month. |
+| [Team](https://pushary.com/teams?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) | $59 a month for 5 people, $12 for each extra person | Each person gets their own agent’s questions. On supported hooks, route a step such as a production deploy to the teammate who approves it. See who answered in the shared record. Includes export and 60 shared call minutes a month. |
 
 Missed the push? Pushary can call you, by default within a minute of the push, and read the request. You approve it, say no or tell the agent what to do. Calls need a confirmed phone number and work in English, German, French and Dutch. Calls cover Claude Code, Codex, Gemini CLI, Hermes and the other agents listed on the calls page, not yet Cursor, VS Code, OpenCode or OpenClaw. [Phone calls](https://pushary.com/calls?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme) · [How calls work](https://pushary.com/docs/agents/phone-calls?utm_source=github&utm_medium=oss-skill&utm_campaign=pushary-skill&utm_content=readme)
 
@@ -282,16 +280,9 @@ Read `answered`, `status` and `handoffAction` (or `nextAction`) from the tool re
 
 ## Compatible Agents
 
-Works with any agent that supports [skills.sh](https://skills.sh/) or the Model Context Protocol:
+Start with the [supported agents guide](https://pushary.com/docs/agents/supported-agents). Find your agent to see how to connect it and which actions it can hold for approval. For example, Cursor needs its editor hooks to gate commands. Codex uses native permission hooks. A compatible MCP client can ask questions through Pushary even when its own permission prompts stay in the client.
 
-- [Claude Code](https://code.claude.com/) (MCP + permission hooks)
-- [Claude Cowork](https://claude.com/) (custom connector + skill upload)
-- [Hermes Agent](https://hermes-agent.nousresearch.com/) (native plugin or MCP)
-- [Cursor](https://cursor.com/) (MCP)
-- [Windsurf](https://windsurf.com/) (MCP)
-- [Lovable](https://lovable.dev/) (MCP connector + skill via Knowledge)
-- [OpenAI Codex](https://openai.com/index/openai-codex/) (MCP)
-- Other clients that support remote MCP servers
+For OpenHands Agent Canvas, choose either the CLI setup or the plugin. The [OpenHands guide](https://github.com/Pushary/openhands-plugin#install) walks you through denying a file creation and checking the result.
 
 ## Publishing the MCP registry entry
 
