@@ -115,7 +115,7 @@ This writes the native plugin to `~/.hermes/plugins/pushary` and turns it on wit
 
 ### Try OpenCode with your phone
 
-Connect OpenCode with `npx -y pushary@latest setup --agents opencode`, then start a fresh session. Ask it to send “Did this reach your phone?” through Pushary and wait for your answer. Tap **No** and check that OpenCode reports your choice in the same session. On November 25, 2026, I ran this check with “Did the OpenCode test reach your phone?” One phone received the question. I answered **Yes** from the notification and OpenCode reported **yes** in the same session. For setup help, see the [OpenCode notification guide](https://pushary.com/opencode-notifications).
+Connect OpenCode with `npx -y pushary@latest setup --agents opencode`, then start a fresh session. Ask it to send “Did this reach your phone?” through Pushary and wait for your answer. Tap **No** and check that OpenCode reports your choice in the same session. On November 25, 2026, I ran this check with “Did the OpenCode test reach your phone?” One phone received the question. I answered **Yes** from the notification and OpenCode reported **yes** in the same session. For setup help, see the [OpenCode notification guide](https://pushary.com/opencode-notifications?utm_source=github&utm_medium=oss-adapter&utm_campaign=opencode-skill&utm_content=readme).
 
 ## Mac notch and other answer surfaces
 
