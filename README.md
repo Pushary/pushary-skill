@@ -113,6 +113,10 @@ npx -y pushary@latest setup --agents hermes
 
 This writes the native plugin to `~/.hermes/plugins/pushary` and turns it on with `hermes plugins enable pushary` and `hermes config set`. Restart Hermes afterward with `hermes gateway restart`. The plugin provides notification, question, wait, cancel, reminder and scope tools, plus Partner enrollment and customer-question tools. Its parameters use snake_case; use the [Hermes skill](skills/hermes/SKILL.md), not MCP parameter names. The native approval transport preserves Hermes' session and standing approvals.
 
+### Try OpenCode with your phone
+
+After setup, start a fresh OpenCode session. Ask it to send “Did this reach your phone?” through Pushary and wait for your answer. Tap **No** and check that OpenCode reports your choice in the same session. For a request that never arrives, follow the [OpenCode notification guide](https://pushary.com/opencode-notifications).
+
 ## Mac notch and other answer surfaces
 
 Install [Pushary for Mac](https://pushary.com/download), sign in with the same personal account and connect your agents from the app. The notch provides confirm, choice, text and question-set controls with keyboard support. Keep the app running for presence and delivery; verify one harmless question there, then phone fallback while away from the Mac.
@@ -137,6 +141,8 @@ On [Pushary for Teams](https://pushary.com/teams?utm_source=github&utm_medium=os
 | Route to | The Admins role, or one person |
 
 Claude Code, Codex, Cursor and Gemini CLI shell calls all match a `Bash(...)` rule, so one rule covers a team that runs several agents. Whoever answers in the phone app, Mac app or dashboard is recorded by name, next to whose agent asked.
+
+To test the route, pick a disposable repository and send its push requests to a teammate. Ask Claude Code to push a test branch there. Have your teammate decline in the Pushary app. In the dashboard, check whose session asked and who declined. The branch should stay local.
 
 What a routing rule doesn't do:
 
